@@ -35,10 +35,6 @@ final class Url
             return $path;
         }
 
-        if ($baseUrl === '/') {
-            return '/' . $path;
-        }
-
         return rtrim($baseUrl, '/') . '/' . $path;
     }
 

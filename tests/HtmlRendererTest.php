@@ -60,6 +60,25 @@ final class HtmlRendererTest extends TestCase
         );
     }
 
+    public function testOptionsRetainConfiguredAttributesWithoutProvider(): void
+    {
+        $options = new HtmlRenderOptions(
+            moduleScriptAttributes: [
+                'crossorigin' => 'anonymous',
+                'defer' => true,
+            ],
+        );
+
+        self::assertSame(
+            [
+                'crossorigin' => 'anonymous',
+                'defer' => true,
+            ],
+            $options->attributesFor(new ModuleScript('/app.js')),
+            'Every static attribute must be retained.',
+        );
+    }
+
     public function testRendererEscapesUrlsAndCustomAttributes(): void
     {
         $script = new ModuleScript('/app.js?x=1&name="quoted"&tag=<value>');

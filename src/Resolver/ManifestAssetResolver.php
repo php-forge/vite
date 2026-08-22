@@ -10,7 +10,6 @@ use PHPForge\Vite\Exception\{EntrypointNotFoundException, InvalidManifestExcepti
 use PHPForge\Vite\Manifest\{Manifest, ManifestChunk, ManifestLoader};
 use PHPForge\Vite\Support\Url;
 
-use function array_values;
 use function sprintf;
 
 final readonly class ManifestAssetResolver implements AssetResolverInterface
@@ -100,11 +99,7 @@ final readonly class ManifestAssetResolver implements AssetResolverInterface
             }
         }
 
-        return new AssetCollection([
-            ...array_values($stylesheets),
-            ...array_values($scripts),
-            ...array_values($preloads),
-        ]);
+        return new AssetCollection($this->orderedAssets($stylesheets, $scripts, $preloads));
     }
 
     private function assetUrl(string $path): string
@@ -156,6 +151,20 @@ final readonly class ManifestAssetResolver implements AssetResolverInterface
         }
 
         return $chunks;
+    }
+
+    /**
+     * @param array<string, Stylesheet> $stylesheets
+     * @param array<string, ModuleScript> $scripts
+     * @param array<string, ModulePreload> $preloads
+     *
+     * @return iterable<Stylesheet|ModuleScript|ModulePreload>
+     */
+    private function orderedAssets(array $stylesheets, array $scripts, array $preloads): iterable
+    {
+        yield from $stylesheets;
+        yield from $scripts;
+        yield from $preloads;
     }
 
     /**

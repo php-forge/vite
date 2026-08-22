@@ -11,7 +11,7 @@ use PHPForge\Vite\Exception\ConfigurationException;
 use Traversable;
 
 use function count;
-use function hash;
+use function in_array;
 
 /**
  * Immutable, insertion-ordered collection of deduplicated neutral assets.
@@ -35,13 +35,16 @@ final readonly class AssetCollection implements Countable, IteratorAggregate
 
         foreach ($assets as $asset) {
             $asset = $this->requireAsset($asset);
-            $identity = $this->identity($asset);
 
-            if (isset($seen[$identity])) {
+            $type = $asset::class;
+
+            $value = $asset instanceof InlineModule ? $asset->source : $asset->url;
+
+            if (in_array($value, $seen[$type] ?? [], true)) {
                 continue;
             }
 
-            $seen[$identity] = true;
+            $seen[$type][] = $value;
             $normalized[] = $asset;
         }
 
@@ -143,24 +146,25 @@ final readonly class AssetCollection implements Countable, IteratorAggregate
         return $assets;
     }
 
-    private function identity(AssetInterface $asset): string
-    {
-        return match (true) {
-            $asset instanceof InlineModule => InlineModule::class . ':' . hash('sha256', $asset->source),
-            $asset instanceof ModulePreload => ModulePreload::class . ':' . $asset->url,
-            $asset instanceof ModuleScript => ModuleScript::class . ':' . $asset->url,
-            $asset instanceof Stylesheet => Stylesheet::class . ':' . $asset->url,
-            default => throw new ConfigurationException(
-                'Unsupported AssetInterface implementation.',
-            ),
-        };
-    }
-
+    /**
+     * @return InlineModule|ModulePreload|ModuleScript|Stylesheet
+     */
     private function requireAsset(mixed $asset): AssetInterface
     {
         if (!$asset instanceof AssetInterface) {
             throw new ConfigurationException(
                 'AssetCollection accepts only AssetInterface instances.',
+            );
+        }
+
+        if (
+            !$asset instanceof InlineModule
+            && !$asset instanceof ModulePreload
+            && !$asset instanceof ModuleScript
+            && !$asset instanceof Stylesheet
+        ) {
+            throw new ConfigurationException(
+                'Unsupported AssetInterface implementation.',
             );
         }
 

@@ -25,7 +25,7 @@ final class AssetCollectionTest extends TestCase
         $collection = new AssetCollection([$script]);
 
         $prepended = $collection->prepend($stylesheet, $script);
-        $appended = $collection->append($script, $stylesheet);
+        $appended = $collection->append($stylesheet);
 
         self::assertSame(
             [$script],
@@ -46,34 +46,67 @@ final class AssetCollectionTest extends TestCase
 
     public function testCollectionDeduplicatesAssetsAndPreservesInsertionOrder(): void
     {
-        $script = new ModuleScript('/build/app.js');
-        $stylesheet = new Stylesheet('/build/app.css');
-        $preload = new ModulePreload('/build/vendor.js');
-        $inline = new InlineModule('window.ready = true');
-        $collection = new AssetCollection([$stylesheet, $script, $stylesheet, $preload, $inline, $inline]);
+        $stylesheet = new Stylesheet('/build/shared.js');
+        $script = new ModuleScript('/build/shared.js');
+        $preload = new ModulePreload('/build/shared.js');
+        $inline = new InlineModule('window.first = true;');
+        $secondStylesheet = new Stylesheet('/build/second.css');
+        $secondScript = new ModuleScript('/build/second.js');
+        $secondPreload = new ModulePreload('/build/second-preload.js');
+        $secondInline = new InlineModule('window.second = true;');
+        $collection = new AssetCollection(
+            [
+                $stylesheet,
+                $script,
+                $preload,
+                $inline,
+                new Stylesheet('/build/shared.js'),
+                new ModuleScript('/build/shared.js'),
+                new ModulePreload('/build/shared.js'),
+                new InlineModule('window.first = true;'),
+                $secondStylesheet,
+                $secondScript,
+                $secondPreload,
+                $secondInline,
+            ],
+        );
 
         self::assertSame(
-            [$stylesheet, $script, $preload, $inline],
+            [
+                $stylesheet,
+                $script,
+                $preload,
+                $inline,
+                $secondStylesheet,
+                $secondScript,
+                $secondPreload,
+                $secondInline,
+            ],
             $collection->all(),
             'First occurrences must define the asset order.',
         );
         self::assertSame(
-            [$script],
+            [$script, $secondScript],
             $collection->moduleScripts(),
             'Only module scripts must be returned.',
         );
         self::assertSame(
-            [$preload],
+            [$stylesheet, $secondStylesheet],
+            $collection->stylesheets(),
+            'Only stylesheets must be returned.',
+        );
+        self::assertSame(
+            [$preload, $secondPreload],
             $collection->modulePreloads(),
             'Only module preloads must be returned.',
         );
         self::assertSame(
-            [$inline],
+            [$inline, $secondInline],
             $collection->inlineModules(),
             'Only inline modules must be returned.',
         );
         self::assertCount(
-            4,
+            8,
             $collection,
             'Count must reflect unique assets.',
         );
