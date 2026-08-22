@@ -10,6 +10,7 @@ use PHPForge\Vite\Exception\{
     InvalidManifestException,
     ManifestNotFoundException,
     ManifestReadException,
+    Message,
 };
 use PHPForge\Vite\Support\{Path, Url};
 use stdClass;
@@ -59,7 +60,7 @@ final class ManifestLoader
 
         if (!is_file($manifestPath)) {
             throw new ManifestNotFoundException(
-                sprintf('The Vite manifest file "%s" does not exist.', $manifestPath),
+                Message::MANIFEST_NOT_FOUND->getMessage($manifestPath),
             );
         }
 
@@ -68,7 +69,7 @@ final class ManifestLoader
 
         if ($metadata === false) {
             throw new ManifestReadException(
-                sprintf('Unable to inspect the Vite manifest file "%s".', $manifestPath),
+                Message::MANIFEST_INSPECTION_FAILED->getMessage($manifestPath),
             );
         }
 
@@ -81,7 +82,7 @@ final class ManifestLoader
 
         if (!is_readable($manifestPath)) {
             throw new ManifestReadException(
-                sprintf('Unable to read the Vite manifest file "%s".', $manifestPath),
+                Message::MANIFEST_READ_FAILED->getMessage($manifestPath),
             );
         }
 
@@ -89,7 +90,7 @@ final class ManifestLoader
 
         if ($content === false) {
             throw new ManifestReadException(
-                sprintf('Unable to read the Vite manifest file "%s".', $manifestPath),
+                Message::MANIFEST_READ_FAILED->getMessage($manifestPath),
             );
         }
 
@@ -97,14 +98,14 @@ final class ManifestLoader
             $decoded = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $exception) {
             throw new InvalidManifestException(
-                sprintf('Unable to decode the Vite manifest file "%s": %s', $manifestPath, $exception->getMessage()),
+                Message::MANIFEST_DECODE_FAILED->getMessage($manifestPath, $exception->getMessage()),
                 previous: $exception,
             );
         }
 
         if (!$decoded instanceof stdClass) {
             throw new InvalidManifestException(
-                sprintf('The Vite manifest file "%s" must contain a JSON object.', $manifestPath),
+                Message::MANIFEST_ROOT_INVALID->getMessage($manifestPath),
             );
         }
 
@@ -138,8 +139,7 @@ final class ManifestLoader
 
         if (!is_bool($value)) {
             throw new InvalidManifestException(
-                sprintf(
-                    'The Vite manifest entry "%s" in "%s" has an invalid "%s" value.',
+                Message::MANIFEST_FIELD_VALUE_INVALID->getMessage(
                     $key,
                     $manifestPath,
                     $field,
@@ -168,8 +168,7 @@ final class ManifestLoader
 
         if (!is_array($value) || !array_is_list($value)) {
             throw new InvalidManifestException(
-                sprintf(
-                    'The Vite manifest entry "%s" in "%s" has an invalid "%s" list.',
+                Message::MANIFEST_FIELD_LIST_INVALID->getMessage(
                     $key,
                     $manifestPath,
                     $field,
@@ -182,8 +181,7 @@ final class ManifestLoader
         foreach ($value as $index => $item) {
             if (!is_string($item) || $item === '') {
                 throw new InvalidManifestException(
-                    sprintf(
-                        'The Vite manifest entry "%s" in "%s" contains an invalid "%s[%d]" value.',
+                    Message::MANIFEST_LIST_ITEM_INVALID->getMessage(
                         $key,
                         $manifestPath,
                         $field,
@@ -200,8 +198,7 @@ final class ManifestLoader
                     );
                 } catch (ConfigurationException $exception) {
                     throw new InvalidManifestException(
-                        sprintf(
-                            'The Vite manifest entry "%s" in "%s" contains an invalid "%s[%d]" path.',
+                        Message::MANIFEST_LIST_ITEM_PATH_INVALID->getMessage(
                             $key,
                             $manifestPath,
                             $field,
@@ -228,8 +225,7 @@ final class ManifestLoader
 
         if (!is_string($value)) {
             throw new InvalidManifestException(
-                sprintf(
-                    'The Vite manifest entry "%s" in "%s" has an invalid "%s" value.',
+                Message::MANIFEST_FIELD_VALUE_INVALID->getMessage(
                     $key,
                     $manifestPath,
                     $field,
@@ -247,7 +243,7 @@ final class ManifestLoader
         foreach ((array) $decoded as $key => $value) {
             if (!is_string($key) || $key === '' || !$value instanceof stdClass) {
                 throw new InvalidManifestException(
-                    sprintf('The Vite manifest file "%s" contains an invalid entry.', $manifestPath),
+                    Message::MANIFEST_ENTRY_INVALID->getMessage($manifestPath),
                 );
             }
 
@@ -255,7 +251,7 @@ final class ManifestLoader
 
             if (!is_string($file) || $file === '') {
                 throw new InvalidManifestException(
-                    sprintf('The Vite manifest entry "%s" in "%s" has no valid "file".', $key, $manifestPath),
+                    Message::MANIFEST_ENTRY_FILE_INVALID->getMessage($key, $manifestPath),
                 );
             }
 
@@ -263,7 +259,7 @@ final class ManifestLoader
                 $file = Url::normalizeAssetPath($file, 'Vite manifest "file" value');
             } catch (ConfigurationException $exception) {
                 throw new InvalidManifestException(
-                    sprintf('The Vite manifest entry "%s" in "%s" has an invalid "file" path.', $key, $manifestPath),
+                    Message::MANIFEST_ENTRY_FILE_PATH_INVALID->getMessage($key, $manifestPath),
                     previous: $exception,
                 );
             }
@@ -287,8 +283,7 @@ final class ManifestLoader
                 foreach ($references as $reference) {
                     if (!array_key_exists($reference, $chunks)) {
                         throw new InvalidManifestException(
-                            sprintf(
-                                'The Vite manifest entry "%s" in "%s" references missing "%s" chunk "%s".',
+                            Message::MANIFEST_REFERENCE_MISSING->getMessage(
                                 $chunk->key,
                                 $manifestPath,
                                 $field,

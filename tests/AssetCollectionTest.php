@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPForge\Vite\Tests;
 
 use PHPForge\Vite\Asset\{AssetCollection, InlineModule, ModulePreload, ModuleScript, Stylesheet};
-use PHPForge\Vite\Exception\ConfigurationException;
+use PHPForge\Vite\Exception\{ConfigurationException, Message};
 use PHPForge\Vite\Tests\Fixtures\UnsupportedAssetStub;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -121,7 +121,7 @@ final class AssetCollectionTest extends TestCase
     {
         $this->expectException(ConfigurationException::class);
         $this->expectExceptionMessage(
-            'Unsupported',
+            Message::ASSET_IMPLEMENTATION_UNSUPPORTED->getMessage(),
         );
 
         new AssetCollection([new UnsupportedAssetStub()]);

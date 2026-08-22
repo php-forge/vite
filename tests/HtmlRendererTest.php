@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPForge\Vite\Tests;
 
 use PHPForge\Vite\Asset\{AssetCollection, AssetInterface, InlineModule, ModulePreload, ModuleScript, Stylesheet};
-use PHPForge\Vite\Exception\HtmlRenderingException;
+use PHPForge\Vite\Exception\{HtmlRenderingException, Message};
 use PHPForge\Vite\Html\{HtmlRenderOptions, HtmlRenderer};
 use PHPForge\Vite\Tests\Provider\HtmlRendererProvider;
 use PHPUnit\Framework\Attributes\{DataProviderExternal, Group};
@@ -145,7 +145,7 @@ final class HtmlRendererTest extends TestCase
     {
         $this->expectException(HtmlRenderingException::class);
         $this->expectExceptionMessage(
-            'must return an array',
+            Message::HTML_ATTRIBUTE_PROVIDER_RESULT_INVALID->getMessage(),
         );
 
         $options = (new ReflectionClass(HtmlRenderOptions::class))->newInstanceArgs(
@@ -159,7 +159,7 @@ final class HtmlRendererTest extends TestCase
     {
         $this->expectException(HtmlRenderingException::class);
         $this->expectExceptionMessage(
-            'CSP nonce',
+            Message::CSP_NONCE_INVALID->getMessage(),
         );
 
         new HtmlRenderOptions(nonce: 'invalid nonce');
@@ -167,13 +167,17 @@ final class HtmlRendererTest extends TestCase
 
     /**
      * @param array<mixed, mixed> $attributes
+     * @param list<int|string> $arguments
      */
     #[DataProviderExternal(HtmlRendererProvider::class, 'unsafeAttributes')]
-    public function testThrowHtmlRenderingExceptionForUnsafeAttribute(array $attributes, string $message): void
-    {
+    public function testThrowHtmlRenderingExceptionForUnsafeAttribute(
+        array $attributes,
+        Message $message,
+        array $arguments,
+    ): void {
         $this->expectException(HtmlRenderingException::class);
         $this->expectExceptionMessage(
-            $message,
+            $message->getMessage(...$arguments),
         );
 
         $options = (new ReflectionClass(HtmlRenderOptions::class))->newInstanceArgs(

@@ -6,11 +6,9 @@ namespace PHPForge\Vite\Resolver;
 
 use PHPForge\Vite\Asset\{AssetCollection, ModulePreload, ModuleScript, Stylesheet};
 use PHPForge\Vite\Configuration\ProductionConfiguration;
-use PHPForge\Vite\Exception\{EntrypointNotFoundException, InvalidManifestException};
+use PHPForge\Vite\Exception\{EntrypointNotFoundException, InvalidManifestException, Message};
 use PHPForge\Vite\Manifest\{Manifest, ManifestChunk, ManifestLoader};
 use PHPForge\Vite\Support\Url;
-
-use function sprintf;
 
 final readonly class ManifestAssetResolver implements AssetResolverInterface
 {
@@ -31,8 +29,7 @@ final readonly class ManifestAssetResolver implements AssetResolverInterface
 
             if (!$chunk instanceof ManifestChunk) {
                 throw new EntrypointNotFoundException(
-                    sprintf(
-                        'The Vite manifest file "%s" does not contain the entrypoint "%s".',
+                    Message::ENTRYPOINT_NOT_FOUND->getMessage(
                         $this->configuration->manifestPath,
                         $entrypoint,
                     ),
@@ -41,8 +38,7 @@ final readonly class ManifestAssetResolver implements AssetResolverInterface
 
             if (!$chunk->isEntry) {
                 throw new InvalidManifestException(
-                    sprintf(
-                        'The Vite manifest entry "%s" in "%s" is not marked as an entrypoint.',
+                    Message::MANIFEST_ENTRY_NOT_ENTRYPOINT->getMessage(
                         $entrypoint,
                         $this->configuration->manifestPath,
                     ),
@@ -138,8 +134,7 @@ final readonly class ManifestAssetResolver implements AssetResolverInterface
 
             if (!$import instanceof ManifestChunk) {
                 throw new InvalidManifestException(
-                    sprintf(
-                        'The Vite manifest entry "%s" in "%s" references missing chunk "%s".',
+                    Message::MANIFEST_RESOLVER_REFERENCE_MISSING->getMessage(
                         $chunk->key,
                         $this->configuration->manifestPath,
                         $reference,

@@ -4,13 +4,9 @@ declare(strict_types=1);
 
 namespace PHPForge\Vite\Tests;
 
-use PHPForge\Vite\Asset\AssetCollection;
-use PHPForge\Vite\Asset\ModulePreload;
-use PHPForge\Vite\Asset\ModuleScript;
-use PHPForge\Vite\Asset\Stylesheet;
+use PHPForge\Vite\Asset\{AssetCollection, ModulePreload, ModuleScript, Stylesheet};
 use PHPForge\Vite\Configuration\ProductionConfiguration;
-use PHPForge\Vite\Exception\EntrypointNotFoundException;
-use PHPForge\Vite\Exception\InvalidManifestException;
+use PHPForge\Vite\Exception\{EntrypointNotFoundException, InvalidManifestException, Message};
 use PHPForge\Vite\Vite;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -247,7 +243,10 @@ final class ViteProductionTest extends TestCase
 
         $this->expectException(EntrypointNotFoundException::class);
         $this->expectExceptionMessage(
-            'views/missing.js',
+            Message::ENTRYPOINT_NOT_FOUND->getMessage(
+                __DIR__ . '/Fixture/manifest.json',
+                'views/missing.js',
+            ),
         );
 
         $vite->resolve();
@@ -259,7 +258,10 @@ final class ViteProductionTest extends TestCase
 
         $this->expectException(InvalidManifestException::class);
         $this->expectExceptionMessage(
-            'not marked as an entrypoint',
+            Message::MANIFEST_ENTRY_NOT_ENTRYPOINT->getMessage(
+                '_chunk.js',
+                __DIR__ . '/Fixture/non-entry-manifest.json',
+            ),
         );
 
         $vite->resolve();

@@ -9,12 +9,14 @@ use PHPForge\Vite\Exception\{
     InvalidManifestException,
     ManifestNotFoundException,
     ManifestReadException,
+    Message,
 };
 use PHPForge\Vite\Manifest\ManifestLoader;
 use PHPForge\Vite\Tests\Provider\ManifestLoaderProvider;
 use PHPUnit\Framework\Attributes\{DataProviderExternal, Group};
 use PHPUnit\Framework\TestCase;
 
+use function array_map;
 use function chmod;
 use function clearstatcache;
 use function file_put_contents;
@@ -145,41 +147,57 @@ final class ManifestLoaderTest extends TestCase
     {
         $this->expectException(ConfigurationException::class);
         $this->expectExceptionMessage(
-            'absolute filesystem path',
+            Message::FILESYSTEM_PATH_INVALID->getMessage('manifestPath'),
         );
 
         (new ManifestLoader())->clear('@webroot/build/.vite/manifest.json');
     }
 
+    /**
+     * @param list<int|string|null> $arguments
+     */
     #[DataProviderExternal(ManifestLoaderProvider::class, 'invalidManifests')]
-    public function testThrowInvalidManifestExceptionForInvalidManifestStructure(string $json, string $message): void
-    {
-        $this->expectException(InvalidManifestException::class);
-        $this->expectExceptionMessage(
-            $message,
+    public function testThrowInvalidManifestExceptionForInvalidManifestStructure(
+        string $json,
+        Message $message,
+        array $arguments,
+    ): void {
+        $path = $this->temporaryManifest($json);
+        $arguments = array_map(
+            static fn(int|string|null $argument): int|string => $argument ?? $path,
+            $arguments,
         );
 
-        (new ManifestLoader())->load($this->temporaryManifest($json));
+        $this->expectException(InvalidManifestException::class);
+        $this->expectExceptionMessage(
+            $message->getMessage(...$arguments),
+        );
+
+        (new ManifestLoader())->load($path);
     }
 
     public function testThrowInvalidManifestExceptionForMalformedJson(): void
     {
+        $path = __DIR__ . '/Fixture/invalid-manifest.json';
+
         $this->expectException(InvalidManifestException::class);
         $this->expectExceptionMessage(
-            'Unable to decode',
+            Message::MANIFEST_DECODE_FAILED->getMessage($path, ''),
         );
 
-        (new ManifestLoader())->load(__DIR__ . '/Fixture/invalid-manifest.json');
+        (new ManifestLoader())->load($path);
     }
 
     public function testThrowManifestNotFoundExceptionWhenManifestIsMissing(): void
     {
+        $path = sys_get_temp_dir() . '/php-forge-vite-missing-manifest.json';
+
         $this->expectException(ManifestNotFoundException::class);
         $this->expectExceptionMessage(
-            'does not exist',
+            Message::MANIFEST_NOT_FOUND->getMessage($path),
         );
 
-        (new ManifestLoader())->load(sys_get_temp_dir() . '/php-forge-vite-missing-manifest.json');
+        (new ManifestLoader())->load($path);
     }
 
     public function testThrowManifestReadExceptionWhenManifestIsUnreadable(): void
@@ -198,7 +216,7 @@ final class ManifestLoaderTest extends TestCase
 
             $this->expectException(ManifestReadException::class);
             $this->expectExceptionMessage(
-                'Unable to read',
+                Message::MANIFEST_READ_FAILED->getMessage($path),
             );
 
             (new ManifestLoader())->load($path);

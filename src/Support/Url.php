@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PHPForge\Vite\Support;
 
-use PHPForge\Vite\Exception\ConfigurationException;
+use PHPForge\Vite\Exception\{ConfigurationException, Message};
 
 use function array_filter;
 use function explode;
@@ -14,7 +14,6 @@ use function ltrim;
 use function parse_url;
 use function preg_match;
 use function rtrim;
-use function sprintf;
 use function str_contains;
 use function str_starts_with;
 use function strtolower;
@@ -44,25 +43,25 @@ final class Url
 
         if (self::containsControlCharacter($baseUrl) || str_starts_with($baseUrl, '//')) {
             throw new ConfigurationException(
-                'The "assetBaseUrl" value is invalid.',
+                Message::ASSET_BASE_URL_INVALID->getMessage(),
             );
         }
 
         if (parse_url($baseUrl) === false) {
             throw new ConfigurationException(
-                'The "assetBaseUrl" value is invalid.',
+                Message::ASSET_BASE_URL_INVALID->getMessage(),
             );
         }
 
         if (parse_url($baseUrl, PHP_URL_QUERY) !== null || parse_url($baseUrl, PHP_URL_FRAGMENT) !== null) {
             throw new ConfigurationException(
-                'The "assetBaseUrl" value must not contain a query or fragment.',
+                Message::ASSET_BASE_URL_QUERY_OR_FRAGMENT->getMessage(),
             );
         }
 
         if (!self::isRelativeOrHttpUrl($baseUrl)) {
             throw new ConfigurationException(
-                'The "assetBaseUrl" value must use HTTP(S) when it is an absolute URL.',
+                Message::ASSET_BASE_URL_SCHEME_INVALID->getMessage(),
             );
         }
 
@@ -86,7 +85,7 @@ final class Url
             || preg_match('/^[A-Za-z][A-Za-z0-9+.-]*:/', $normalized) === 1
         ) {
             throw new ConfigurationException(
-                sprintf('The %s must be a relative Vite build path.', $context),
+                Message::ASSET_PATH_INVALID->getMessage($context),
             );
         }
 
@@ -94,7 +93,7 @@ final class Url
 
         if (in_array('.', $segments, true) || in_array('..', $segments, true)) {
             throw new ConfigurationException(
-                sprintf('The %s must not contain dot path segments.', $context),
+                Message::ASSET_PATH_DOT_SEGMENT->getMessage($context),
             );
         }
 
@@ -117,7 +116,7 @@ final class Url
             || parse_url($url, PHP_URL_FRAGMENT) !== null
         ) {
             throw new ConfigurationException(
-                'The "devServerUrl" value must be an absolute HTTP(S) URL.',
+                Message::DEVELOPMENT_SERVER_URL_INVALID->getMessage(),
             );
         }
 
@@ -130,19 +129,19 @@ final class Url
 
         if ($url === '' || self::containsControlCharacter($url) || str_starts_with($url, '//')) {
             throw new ConfigurationException(
-                'Asset URLs must be non-empty and use a safe URL form.',
+                Message::ASSET_URL_FORM_UNSAFE->getMessage(),
             );
         }
 
         if (parse_url($url) === false) {
             throw new ConfigurationException(
-                'Asset URLs must use a valid URL form.',
+                Message::ASSET_URL_FORM_INVALID->getMessage(),
             );
         }
 
         if (!self::isRelativeOrHttpUrl($url)) {
             throw new ConfigurationException(
-                'Absolute asset URLs must use HTTP(S).',
+                Message::ASSET_URL_SCHEME_INVALID->getMessage(),
             );
         }
 

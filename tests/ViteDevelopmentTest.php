@@ -6,7 +6,7 @@ namespace PHPForge\Vite\Tests;
 
 use PHPForge\Vite\Asset\{InlineModule, ModuleScript};
 use PHPForge\Vite\Configuration\DevelopmentConfiguration;
-use PHPForge\Vite\Exception\InvalidEntrypointException;
+use PHPForge\Vite\Exception\{InvalidEntrypointException, Message};
 use PHPForge\Vite\Tests\Fixtures\CapturingInlineModuleProviderStub;
 use PHPForge\Vite\Vite;
 use PHPUnit\Framework\Attributes\Group;
@@ -164,7 +164,7 @@ final class ViteDevelopmentTest extends TestCase
 
         $this->expectException(InvalidEntrypointException::class);
         $this->expectExceptionMessage(
-            'At least one',
+            Message::ENTRYPOINT_REQUIRED->getMessage(),
         );
 
         $vite->resolve();

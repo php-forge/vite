@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace PHPForge\Vite\Support;
 
-use PHPForge\Vite\Exception\ConfigurationException;
+use PHPForge\Vite\Exception\{ConfigurationException, Message};
 
 use function preg_match;
-use function sprintf;
 use function str_starts_with;
 
 final class Path
@@ -16,7 +15,7 @@ final class Path
     {
         if ($path === '' || self::containsControlCharacter($path) || !self::isAbsolute($path)) {
             throw new ConfigurationException(
-                sprintf('The "%s" value must be an absolute filesystem path.', $name),
+                Message::FILESYSTEM_PATH_INVALID->getMessage($name),
             );
         }
 

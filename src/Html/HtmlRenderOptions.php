@@ -6,7 +6,7 @@ namespace PHPForge\Vite\Html;
 
 use Closure;
 use PHPForge\Vite\Asset\{AssetInterface, InlineModule, ModulePreload, ModuleScript, Stylesheet};
-use PHPForge\Vite\Exception\HtmlRenderingException;
+use PHPForge\Vite\Exception\{HtmlRenderingException, Message};
 
 use function array_replace;
 use function is_array;
@@ -40,7 +40,7 @@ final readonly class HtmlRenderOptions
     ) {
         if ($nonce !== null && preg_match('/^[A-Za-z0-9+\/_-]+={0,2}$/', $nonce) !== 1) {
             throw new HtmlRenderingException(
-                'The CSP nonce must be a non-empty base64 or base64url value.',
+                Message::CSP_NONCE_INVALID->getMessage(),
             );
         }
 
@@ -58,7 +58,7 @@ final readonly class HtmlRenderOptions
             $asset instanceof ModuleScript => $this->moduleScriptAttributes,
             $asset instanceof Stylesheet => $this->stylesheetAttributes,
             default => throw new HtmlRenderingException(
-                'Unsupported AssetInterface implementation.',
+                Message::ASSET_IMPLEMENTATION_UNSUPPORTED->getMessage(),
             ),
         };
 
@@ -70,7 +70,7 @@ final readonly class HtmlRenderOptions
 
         if (!is_array($provided)) {
             throw new HtmlRenderingException(
-                'The HTML attribute provider must return an array.',
+                Message::HTML_ATTRIBUTE_PROVIDER_RESULT_INVALID->getMessage(),
             );
         }
 

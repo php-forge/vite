@@ -7,7 +7,7 @@ namespace PHPForge\Vite\Asset;
 use ArrayIterator;
 use Countable;
 use IteratorAggregate;
-use PHPForge\Vite\Exception\ConfigurationException;
+use PHPForge\Vite\Exception\{ConfigurationException, Message};
 use Traversable;
 
 use function count;
@@ -153,7 +153,7 @@ final readonly class AssetCollection implements Countable, IteratorAggregate
     {
         if (!$asset instanceof AssetInterface) {
             throw new ConfigurationException(
-                'AssetCollection accepts only AssetInterface instances.',
+                Message::ASSET_COLLECTION_ITEM_INVALID->getMessage(),
             );
         }
 
@@ -164,7 +164,7 @@ final readonly class AssetCollection implements Countable, IteratorAggregate
             && !$asset instanceof Stylesheet
         ) {
             throw new ConfigurationException(
-                'Unsupported AssetInterface implementation.',
+                Message::ASSET_IMPLEMENTATION_UNSUPPORTED->getMessage(),
             );
         }
 

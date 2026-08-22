@@ -6,7 +6,7 @@ namespace PHPForge\Vite\Tests;
 
 use PHPForge\Vite\Asset\{InlineModule, ModuleScript};
 use PHPForge\Vite\Configuration\{DevelopmentConfiguration, ProductionConfiguration};
-use PHPForge\Vite\Exception\{ConfigurationException, InvalidEntrypointException};
+use PHPForge\Vite\Exception\{ConfigurationException, InvalidEntrypointException, Message};
 use PHPForge\Vite\Tests\Fixtures\CapturingInlineModuleProviderStub;
 use PHPForge\Vite\Tests\Provider\ConfigurationProvider;
 use PHPUnit\Framework\Attributes\{DataProviderExternal, Group};
@@ -87,11 +87,11 @@ final class ConfigurationTest extends TestCase
     }
 
     #[DataProviderExternal(ConfigurationProvider::class, 'invalidDevelopmentServerUrls')]
-    public function testThrowConfigurationExceptionForInvalidDevelopmentServerUrl(string $url): void
+    public function testThrowConfigurationExceptionForInvalidDevelopmentServerUrl(string $url, Message $message): void
     {
         $this->expectException(ConfigurationException::class);
         $this->expectExceptionMessage(
-            'devServerUrl',
+            $message->getMessage(),
         );
 
         new DevelopmentConfiguration($url);
@@ -101,7 +101,7 @@ final class ConfigurationTest extends TestCase
     {
         $this->expectException(ConfigurationException::class);
         $this->expectExceptionMessage(
-            'InlineModuleProviderInterface',
+            Message::DEVELOPMENT_INLINE_MODULE_PROVIDER_INVALID->getMessage(),
         );
 
         (new ReflectionClass(DevelopmentConfiguration::class))->newInstanceArgs(
@@ -113,29 +113,29 @@ final class ConfigurationTest extends TestCase
     {
         $this->expectException(ConfigurationException::class);
         $this->expectExceptionMessage(
-            'absolute filesystem path',
+            Message::FILESYSTEM_PATH_INVALID->getMessage('manifestPath'),
         );
 
         new ProductionConfiguration('@webroot/build/.vite/manifest.json', '/build');
     }
 
     #[DataProviderExternal(ConfigurationProvider::class, 'unsafeAssetUrls')]
-    public function testThrowConfigurationExceptionForUnsafeAssetUrl(string $url, string $message): void
+    public function testThrowConfigurationExceptionForUnsafeAssetUrl(string $url, Message $message): void
     {
         $this->expectException(ConfigurationException::class);
         $this->expectExceptionMessage(
-            $message,
+            $message->getMessage(),
         );
 
         new ModuleScript($url);
     }
 
     #[DataProviderExternal(ConfigurationProvider::class, 'invalidProductionBaseUrls')]
-    public function testThrowConfigurationExceptionForUnsafeProductionBaseUrl(string $url, string $message): void
+    public function testThrowConfigurationExceptionForUnsafeProductionBaseUrl(string $url, Message $message): void
     {
         $this->expectException(ConfigurationException::class);
         $this->expectExceptionMessage(
-            $message,
+            $message->getMessage(),
         );
 
         new ProductionConfiguration(__DIR__ . '/Fixture/manifest.json', $url);
@@ -145,18 +145,20 @@ final class ConfigurationTest extends TestCase
     {
         $this->expectException(ConfigurationException::class);
         $this->expectExceptionMessage(
-            'must not be empty',
+            Message::INLINE_MODULE_SOURCE_EMPTY->getMessage(),
         );
 
         new InlineModule('   ');
     }
 
     #[DataProviderExternal(ConfigurationProvider::class, 'invalidEntrypoints')]
-    public function testThrowInvalidEntrypointExceptionForInvalidRelativeSourcePath(string $entrypoint): void
-    {
+    public function testThrowInvalidEntrypointExceptionForInvalidRelativeSourcePath(
+        string $entrypoint,
+        Message $message,
+    ): void {
         $this->expectException(InvalidEntrypointException::class);
         $this->expectExceptionMessage(
-            'relative source path',
+            $message->getMessage(),
         );
 
         new DevelopmentConfiguration('http://localhost:5173', [$entrypoint]);
@@ -166,7 +168,7 @@ final class ConfigurationTest extends TestCase
     {
         $this->expectException(InvalidEntrypointException::class);
         $this->expectExceptionMessage(
-            'must be a string',
+            Message::ENTRYPOINT_TYPE_INVALID->getMessage(),
         );
 
         (new ReflectionClass(DevelopmentConfiguration::class))->newInstanceArgs(

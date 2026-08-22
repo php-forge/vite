@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PHPForge\Vite\Support;
 
-use PHPForge\Vite\Exception\InvalidEntrypointException;
+use PHPForge\Vite\Exception\{InvalidEntrypointException, Message};
 
 use function array_values;
 use function is_array;
@@ -29,7 +29,7 @@ final class EntrypointNormalizer
         foreach ($entrypoints as $entrypoint) {
             if (!is_string($entrypoint)) {
                 throw new InvalidEntrypointException(
-                    'Each Vite entrypoint must be a string.',
+                    Message::ENTRYPOINT_TYPE_INVALID->getMessage(),
                 );
             }
 
@@ -41,7 +41,7 @@ final class EntrypointNormalizer
                 || preg_match('/[\x00-\x1F\x7F]/', $entrypoint) === 1
             ) {
                 throw new InvalidEntrypointException(
-                    'Each Vite entrypoint must be a non-empty relative source path.',
+                    Message::ENTRYPOINT_INVALID->getMessage(),
                 );
             }
 
@@ -50,7 +50,7 @@ final class EntrypointNormalizer
 
         if ($required && $normalized === []) {
             throw new InvalidEntrypointException(
-                'At least one Vite entrypoint must be configured.',
+                Message::ENTRYPOINT_REQUIRED->getMessage(),
             );
         }
 

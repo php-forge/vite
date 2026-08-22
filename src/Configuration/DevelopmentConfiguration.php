@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPForge\Vite\Configuration;
 
 use PHPForge\Vite\Development\InlineModuleProviderInterface;
-use PHPForge\Vite\Exception\ConfigurationException;
+use PHPForge\Vite\Exception\{ConfigurationException, Message};
 use PHPForge\Vite\Support\{EntrypointNormalizer, Url};
 
 /**
@@ -50,7 +50,7 @@ final readonly class DevelopmentConfiguration
         foreach ($providers as $provider) {
             if (!$provider instanceof InlineModuleProviderInterface) {
                 throw new ConfigurationException(
-                    'Each development inline module provider must implement InlineModuleProviderInterface.',
+                    Message::DEVELOPMENT_INLINE_MODULE_PROVIDER_INVALID->getMessage(),
                 );
             }
 

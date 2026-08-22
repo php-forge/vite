@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPForge\Vite\Html;
 
 use PHPForge\Vite\Asset\{AssetCollection, AssetInterface, InlineModule, ModulePreload, ModuleScript, Stylesheet};
-use PHPForge\Vite\Exception\HtmlRenderingException;
+use PHPForge\Vite\Exception\{HtmlRenderingException, Message};
 use UIAwesome\Html\Metadata\{Link, Script};
 
 use function implode;
@@ -16,7 +16,6 @@ use function is_int;
 use function is_string;
 use function preg_match;
 use function preg_replace;
-use function sprintf;
 use function str_starts_with;
 use function strtolower;
 
@@ -107,7 +106,9 @@ final class HtmlRenderer
             $source = preg_replace('~</script~i', '<\\/script', $asset->source);
 
             if ($source === null) {
-                throw new HtmlRenderingException('Unable to render the inline module source.');
+                throw new HtmlRenderingException(
+                    Message::INLINE_MODULE_RENDER_FAILED->getMessage(),
+                );
             }
 
             return Script::tag()
@@ -117,7 +118,9 @@ final class HtmlRenderer
                 ->render();
         }
 
-        throw new HtmlRenderingException('Unsupported AssetInterface implementation.');
+        throw new HtmlRenderingException(
+            Message::ASSET_IMPLEMENTATION_UNSUPPORTED->getMessage(),
+        );
     }
 
     /**
@@ -129,7 +132,7 @@ final class HtmlRenderer
     {
         if (!is_string($name) || preg_match('/^[A-Za-z_][A-Za-z0-9_-]*$/', $name) !== 1) {
             throw new HtmlRenderingException(
-                'HTML attribute names must use a safe HTML name syntax.',
+                Message::HTML_ATTRIBUTE_NAME_INVALID->getMessage(),
             );
         }
 
@@ -142,7 +145,7 @@ final class HtmlRenderer
             || $normalizedName === 'style'
         ) {
             throw new HtmlRenderingException(
-                sprintf('The HTML attribute "%s" is reserved or unsafe.', $name),
+                Message::HTML_ATTRIBUTE_RESERVED->getMessage($name),
             );
         }
 
@@ -157,7 +160,7 @@ final class HtmlRenderer
             || (is_float($value) && !is_finite($value))
         ) {
             throw new HtmlRenderingException(
-                sprintf('The HTML attribute "%s" has an unsupported value.', $name),
+                Message::HTML_ATTRIBUTE_VALUE_INVALID->getMessage($name),
             );
         }
 
