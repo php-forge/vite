@@ -1,0 +1,15 @@
+{
+    "_chunk-a.js": {
+        "file": "assets/chunk-a.js",
+        "imports": ["_chunk-b.js"]
+    },
+    "_chunk-b.js": {
+        "file": "assets/chunk-b.js",
+        "imports": ["resources/js/app.js"]
+    },
+    "resources/js/app.js": {
+        "file": "assets/app-circular.js",
+        "isEntry": true,
+        "imports": ["_chunk-a.js"]
+    }
+}

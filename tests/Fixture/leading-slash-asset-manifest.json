@@ -1,0 +1,7 @@
+{
+    "resources/js/app.js": {
+        "file": "/assets/leading-slash.js",
+        "isEntry": true,
+        "css": ["/assets/leading-slash.css"]
+    }
+}

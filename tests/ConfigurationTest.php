@@ -1,0 +1,167 @@
+<?php
+
+declare(strict_types=1);
+
+namespace PHPForge\Vite\Tests;
+
+use PHPForge\Vite\Asset\{InlineModule, ModuleScript};
+use PHPForge\Vite\Configuration\{DevelopmentConfiguration, ProductionConfiguration};
+use PHPForge\Vite\Exception\{ConfigurationException, InvalidEntrypointException, Message};
+use PHPForge\Vite\Tests\Fixtures\CapturingInlineModuleProviderStub;
+use PHPForge\Vite\Tests\Provider\ConfigurationProvider;
+use PHPForge\Vite\Vite;
+use PHPUnit\Framework\Attributes\{DataProviderExternal, Group};
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use stdClass;
+
+/**
+ * Unit tests for {@see DevelopmentConfiguration} and {@see ProductionConfiguration} input normalization and validation.
+ *
+ * {@see ConfigurationProvider} for test case data providers.
+ */
+#[Group('configuration')]
+final class ConfigurationTest extends TestCase
+{
+    public function testAssetValueAcceptsCaseInsensitiveHttpScheme(): void
+    {
+        self::assertSame(
+            'HTTPS://cdn.example.com/app.js',
+            (new ModuleScript(' HTTPS://cdn.example.com/app.js '))->url,
+            'Outer whitespace must be removed from the safe absolute URL.',
+        );
+    }
+
+    public function testDevelopmentConfigurationNormalizesValues(): void
+    {
+        $firstProvider = new CapturingInlineModuleProviderStub();
+        $secondProvider = new CapturingInlineModuleProviderStub();
+        $configuration = new DevelopmentConfiguration(
+            devServerUrl: ' HTTPS://localhost:5173/vite/ ',
+            inlineModuleProviders: [$firstProvider, $secondProvider],
+        );
+
+        self::assertSame(
+            'HTTPS://localhost:5173/vite',
+            $configuration->devServerUrl,
+            'Outer whitespace and the trailing slash must be removed.',
+        );
+        self::assertTrue(
+            $configuration->includeViteClient,
+            'The Vite client must be enabled by default.',
+        );
+        self::assertSame(
+            [$firstProvider, $secondProvider],
+            $configuration->inlineModuleProviders,
+            'Every configured inline module provider must be retained.',
+        );
+    }
+
+    public function testProductionConfigurationNormalizesBaseUrl(): void
+    {
+        $configuration = new ProductionConfiguration(
+            manifestPath: __DIR__ . '/Fixture/manifest.json',
+            assetBaseUrl: ' HTTPS://cdn.example.com/build/ ',
+        );
+
+        self::assertSame(
+            'HTTPS://cdn.example.com/build',
+            $configuration->assetBaseUrl,
+            'Outer whitespace and the trailing slash must be removed.',
+        );
+        self::assertTrue(
+            $configuration->modulePreload,
+            'Module preloading must be enabled by default.',
+        );
+    }
+
+    #[DataProviderExternal(ConfigurationProvider::class, 'invalidDevelopmentServerUrls')]
+    public function testThrowConfigurationExceptionForInvalidDevelopmentServerUrl(string $url, Message $message): void
+    {
+        $this->expectException(ConfigurationException::class);
+        $this->expectExceptionMessage(
+            $message->getMessage(),
+        );
+
+        new DevelopmentConfiguration($url);
+    }
+
+    public function testThrowConfigurationExceptionForInvalidInlineModuleProvider(): void
+    {
+        $this->expectException(ConfigurationException::class);
+        $this->expectExceptionMessage(
+            Message::DEVELOPMENT_INLINE_MODULE_PROVIDER_INVALID->getMessage(),
+        );
+
+        (new ReflectionClass(DevelopmentConfiguration::class))->newInstanceArgs(
+            ['http://localhost:5173', true, [new stdClass()]],
+        );
+    }
+
+    public function testThrowConfigurationExceptionForNonAbsoluteManifestPath(): void
+    {
+        $this->expectException(ConfigurationException::class);
+        $this->expectExceptionMessage(
+            Message::FILESYSTEM_PATH_INVALID->getMessage('manifestPath'),
+        );
+
+        new ProductionConfiguration('@webroot/build/.vite/manifest.json', '/build');
+    }
+
+    #[DataProviderExternal(ConfigurationProvider::class, 'unsafeAssetUrls')]
+    public function testThrowConfigurationExceptionForUnsafeAssetUrl(string $url, Message $message): void
+    {
+        $this->expectException(ConfigurationException::class);
+        $this->expectExceptionMessage(
+            $message->getMessage(),
+        );
+
+        new ModuleScript($url);
+    }
+
+    #[DataProviderExternal(ConfigurationProvider::class, 'invalidProductionBaseUrls')]
+    public function testThrowConfigurationExceptionForUnsafeProductionBaseUrl(string $url, Message $message): void
+    {
+        $this->expectException(ConfigurationException::class);
+        $this->expectExceptionMessage(
+            $message->getMessage(),
+        );
+
+        new ProductionConfiguration(__DIR__ . '/Fixture/manifest.json', $url);
+    }
+
+    public function testThrowConfigurationExceptionForWhitespaceInlineModuleSource(): void
+    {
+        $this->expectException(ConfigurationException::class);
+        $this->expectExceptionMessage(
+            Message::INLINE_MODULE_SOURCE_EMPTY->getMessage(),
+        );
+
+        new InlineModule('   ');
+    }
+
+    #[DataProviderExternal(ConfigurationProvider::class, 'invalidEntrypoints')]
+    public function testThrowInvalidEntrypointExceptionForInvalidRelativeSourcePath(
+        string $entrypoint,
+        Message $message,
+    ): void {
+        $this->expectException(InvalidEntrypointException::class);
+        $this->expectExceptionMessage(
+            $message->getMessage(),
+        );
+
+        new Vite(new DevelopmentConfiguration('http://localhost:5173'), [$entrypoint]);
+    }
+
+    public function testThrowInvalidEntrypointExceptionForNonStringEntrypoint(): void
+    {
+        $this->expectException(InvalidEntrypointException::class);
+        $this->expectExceptionMessage(
+            Message::ENTRYPOINT_TYPE_INVALID->getMessage(),
+        );
+
+        (new ReflectionClass(Vite::class))->newInstanceArgs(
+            [new DevelopmentConfiguration('http://localhost:5173'), [123]],
+        );
+    }
+}
