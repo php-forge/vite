@@ -35,11 +35,11 @@ $configuration = new ProductionConfiguration(
 );
 ```
 
-| Argument        | Type           | Default | Purpose                                                      |
-| --------------- | -------------- | ------- | ------------------------------------------------------------ |
-| `manifestPath`  | `string`       | none    | Concrete absolute filesystem path to Vite's client manifest. |
-| `assetBaseUrl`  | `string`       | none    | URL prefix joined to each manifest output path.              |
-| `modulePreload` | `bool`         | `true`  | Emits neutral modulepreload assets for static JS imports.    |
+| Argument        | Type     | Default | Purpose                                                      |
+| --------------- | -------- | ------- | ------------------------------------------------------------ |
+| `manifestPath`  | `string` | none    | Concrete absolute filesystem path to Vite's client manifest. |
+| `assetBaseUrl`  | `string` | none    | URL prefix joined to each manifest output path.              |
+| `modulePreload` | `bool`   | `true`  | Emits neutral modulepreload assets for static JS imports.    |
 
 `assetBaseUrl` may be empty, root-relative, path-relative, or an absolute HTTP(S) URL. Protocol-relative URLs, query
 strings, fragments, and non-HTTP schemes are rejected.
