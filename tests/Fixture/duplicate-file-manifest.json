@@ -1,0 +1,10 @@
+{
+    "resources/js/app.js": {
+        "file": "assets/bundle.js",
+        "isEntry": true
+    },
+    "resources/js/app-legacy.js": {
+        "file": "assets/bundle.js",
+        "isEntry": true
+    }
+}
