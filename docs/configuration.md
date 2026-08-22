@@ -10,7 +10,6 @@ use PHPForge\Vite\Configuration\DevelopmentConfiguration;
 
 $configuration = new DevelopmentConfiguration(
     devServerUrl: 'http://localhost:5173',
-    entrypoints: ['resources/js/app.js'],
     includeViteClient: true,
     inlineModuleProviders: [],
 );
@@ -19,12 +18,10 @@ $configuration = new DevelopmentConfiguration(
 | Argument                | Type                                  | Default | Purpose                                                     |
 | ----------------------- | ------------------------------------- | ------- | ----------------------------------------------------------- |
 | `devServerUrl`          | `string`                              | none    | Absolute HTTP(S) Vite development-server URL.               |
-| `entrypoints`           | `list<string>`                        | `[]`    | Application source entrypoints appended after the client.   |
 | `includeViteClient`     | `bool`                                | `true`  | Adds the `@vite/client` module script.                      |
 | `inlineModuleProviders` | `list<InlineModuleProviderInterface>` | `[]`    | Adds application-owned inline modules before Vite's client. |
 
-The URL may include a path prefix, but not a query or fragment. Duplicate entrypoints are removed while preserving the
-first occurrence. At least one entrypoint must be available when `Vite::resolve()` is called.
+The URL may include a path prefix, but not a query or fragment.
 
 ## Production configuration
 
@@ -34,7 +31,6 @@ use PHPForge\Vite\Configuration\ProductionConfiguration;
 $configuration = new ProductionConfiguration(
     manifestPath: '/srv/app/public/build/.vite/manifest.json',
     assetBaseUrl: '/build',
-    entrypoints: ['resources/js/app.js'],
     modulePreload: true,
 );
 ```
@@ -43,7 +39,6 @@ $configuration = new ProductionConfiguration(
 | --------------- | -------------- | ------- | ------------------------------------------------------------ |
 | `manifestPath`  | `string`       | none    | Concrete absolute filesystem path to Vite's client manifest. |
 | `assetBaseUrl`  | `string`       | none    | URL prefix joined to each manifest output path.              |
-| `entrypoints`   | `list<string>` | `[]`    | Manifest keys to resolve by default.                         |
 | `modulePreload` | `bool`         | `true`  | Emits neutral modulepreload assets for static JS imports.    |
 
 `assetBaseUrl` may be empty, root-relative, path-relative, or an absolute HTTP(S) URL. Protocol-relative URLs, query
@@ -54,15 +49,22 @@ strings, fragments, and non-HTTP schemes are rejected.
 ```php
 use PHPForge\Vite\Vite;
 
-$vite = new Vite($configuration);
+$vite = new Vite(
+    configuration: $configuration,
+    entrypoints: ['resources/js/app.js'],
+);
 
 $defaultAssets = $vite->resolve();
 $pageAssets = $vite->resolve('resources/js/admin.js');
 $combinedAssets = $vite->resolve(['resources/js/app.js', 'resources/js/admin.js']);
 ```
 
-An explicit argument to `resolve()` replaces the configured entrypoints for that call. Entrypoint identifiers are Vite
-manifest keys or development source paths, not filesystem paths.
+Default entrypoints belong to the facade because they apply equally to development and production. Duplicate entrypoints
+are removed while preserving the first occurrence. At least one entrypoint must be available when `Vite::resolve()` is
+called.
+
+An explicit argument to `resolve()` replaces the facade's default entrypoints for that call. Entrypoint identifiers are
+Vite manifest keys or development source paths, not filesystem paths.
 
 ## Manifest loading and cache
 

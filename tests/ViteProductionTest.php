@@ -22,10 +22,9 @@ final class ViteProductionTest extends TestCase
         $configuration = new ProductionConfiguration(
             manifestPath: __DIR__ . '/Fixture/css-entrypoint-manifest.json',
             assetBaseUrl: 'https://cdn.example.com/build/',
-            entrypoints: ['resources/css/app.css'],
         );
 
-        $stylesheets = (new Vite($configuration))->resolve()->stylesheets();
+        $stylesheets = (new Vite($configuration, ['resources/css/app.css']))->resolve()->stylesheets();
 
         self::assertSame(
             ['https://cdn.example.com/build/assets/app-abc123.css'],
@@ -76,10 +75,9 @@ final class ViteProductionTest extends TestCase
         $configuration = new ProductionConfiguration(
             manifestPath: __DIR__ . '/Fixture/css-entrypoint-manifest.json',
             assetBaseUrl: '',
-            entrypoints: ['resources/css/app.css'],
         );
 
-        $stylesheets = (new Vite($configuration))->resolve()->stylesheets();
+        $stylesheets = (new Vite($configuration, ['resources/css/app.css']))->resolve()->stylesheets();
 
         self::assertSame(
             ['assets/app-abc123.css'],
@@ -152,11 +150,10 @@ final class ViteProductionTest extends TestCase
         $configuration = new ProductionConfiguration(
             manifestPath: __DIR__ . '/Fixture/manifest.json',
             assetBaseUrl: '/build',
-            entrypoints: ['views/foo.js'],
             modulePreload: false,
         );
 
-        $assets = (new Vite($configuration))->resolve();
+        $assets = (new Vite($configuration, ['views/foo.js']))->resolve();
 
         self::assertSame(
             [],
@@ -226,9 +223,8 @@ final class ViteProductionTest extends TestCase
         $configuration = new ProductionConfiguration(
             manifestPath: __DIR__ . '/Fixture/css-entrypoint-manifest.json',
             assetBaseUrl: '/',
-            entrypoints: ['resources/css/app.css'],
         );
-        $stylesheets = (new Vite($configuration))->resolve()->stylesheets();
+        $stylesheets = (new Vite($configuration, ['resources/css/app.css']))->resolve()->stylesheets();
 
         self::assertSame(
             ['/assets/app-abc123.css'],
@@ -292,8 +288,8 @@ final class ViteProductionTest extends TestCase
             new ProductionConfiguration(
                 manifestPath: __DIR__ . '/Fixture/' . $fixture,
                 assetBaseUrl: '/build',
-                entrypoints: $entrypoints,
             ),
+            entrypoints: $entrypoints,
         );
     }
 }

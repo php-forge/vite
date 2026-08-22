@@ -9,6 +9,7 @@ use PHPForge\Vite\Configuration\{DevelopmentConfiguration, ProductionConfigurati
 use PHPForge\Vite\Exception\{ConfigurationException, InvalidEntrypointException, Message};
 use PHPForge\Vite\Tests\Fixtures\CapturingInlineModuleProviderStub;
 use PHPForge\Vite\Tests\Provider\ConfigurationProvider;
+use PHPForge\Vite\Vite;
 use PHPUnit\Framework\Attributes\{DataProviderExternal, Group};
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -37,7 +38,6 @@ final class ConfigurationTest extends TestCase
         $secondProvider = new CapturingInlineModuleProviderStub();
         $configuration = new DevelopmentConfiguration(
             devServerUrl: ' HTTPS://localhost:5173/vite/ ',
-            entrypoints: ['/resources/js/app.js', 'resources/js/app.js'],
             inlineModuleProviders: [$firstProvider, $secondProvider],
         );
 
@@ -45,11 +45,6 @@ final class ConfigurationTest extends TestCase
             'HTTPS://localhost:5173/vite',
             $configuration->devServerUrl,
             'Outer whitespace and the trailing slash must be removed.',
-        );
-        self::assertSame(
-            ['resources/js/app.js'],
-            $configuration->entrypoints,
-            'Leading slashes and duplicates must be normalized.',
         );
         self::assertTrue(
             $configuration->includeViteClient,
@@ -67,18 +62,12 @@ final class ConfigurationTest extends TestCase
         $configuration = new ProductionConfiguration(
             manifestPath: __DIR__ . '/Fixture/manifest.json',
             assetBaseUrl: ' HTTPS://cdn.example.com/build/ ',
-            entrypoints: ['views/foo.js'],
         );
 
         self::assertSame(
             'HTTPS://cdn.example.com/build',
             $configuration->assetBaseUrl,
             'Outer whitespace and the trailing slash must be removed.',
-        );
-        self::assertSame(
-            ['views/foo.js'],
-            $configuration->entrypoints,
-            'Entrypoints must retain their source paths.',
         );
         self::assertTrue(
             $configuration->modulePreload,
@@ -105,7 +94,7 @@ final class ConfigurationTest extends TestCase
         );
 
         (new ReflectionClass(DevelopmentConfiguration::class))->newInstanceArgs(
-            ['http://localhost:5173', [], true, [new stdClass()]],
+            ['http://localhost:5173', true, [new stdClass()]],
         );
     }
 
@@ -161,7 +150,7 @@ final class ConfigurationTest extends TestCase
             $message->getMessage(),
         );
 
-        new DevelopmentConfiguration('http://localhost:5173', [$entrypoint]);
+        new Vite(new DevelopmentConfiguration('http://localhost:5173'), [$entrypoint]);
     }
 
     public function testThrowInvalidEntrypointExceptionForNonStringEntrypoint(): void
@@ -171,8 +160,8 @@ final class ConfigurationTest extends TestCase
             Message::ENTRYPOINT_TYPE_INVALID->getMessage(),
         );
 
-        (new ReflectionClass(DevelopmentConfiguration::class))->newInstanceArgs(
-            ['http://localhost:5173', [123]],
+        (new ReflectionClass(Vite::class))->newInstanceArgs(
+            [new DevelopmentConfiguration('http://localhost:5173'), [123]],
         );
     }
 }

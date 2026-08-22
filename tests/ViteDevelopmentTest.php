@@ -24,9 +24,9 @@ final class ViteDevelopmentTest extends TestCase
         $vite = new Vite(
             new DevelopmentConfiguration(
                 devServerUrl: 'http://localhost:5173/',
-                entrypoints: ['resources/js/app.js', 'resources/js/admin.js'],
                 inlineModuleProviders: [$provider],
             ),
+            entrypoints: ['/resources/js/app.js', 'resources/js/app.js', 'resources/js/admin.js'],
         );
 
         $assets = $vite->resolve()->all();
@@ -88,9 +88,9 @@ final class ViteDevelopmentTest extends TestCase
         $vite = new Vite(
             new DevelopmentConfiguration(
                 devServerUrl: 'http://localhost:5173',
-                entrypoints: ['resources/js/app.js'],
                 includeViteClient: false,
             ),
+            entrypoints: ['resources/js/app.js'],
         );
 
         $scripts = $vite->resolve()->moduleScripts();
@@ -112,8 +112,8 @@ final class ViteDevelopmentTest extends TestCase
         $vite = new Vite(
             new DevelopmentConfiguration(
                 devServerUrl: 'https://assets.example.com/vite/',
-                entrypoints: ['resources/js/app.js'],
             ),
+            entrypoints: ['resources/js/app.js'],
         );
 
         self::assertSame(

@@ -23,13 +23,17 @@ final readonly class Vite
     private string|null $manifestPath;
     private AssetResolverInterface $resolver;
 
+    /**
+     * @param list<string> $entrypoints
+     */
     public function __construct(
         DevelopmentConfiguration|ProductionConfiguration $configuration,
+        array $entrypoints = [],
         ManifestLoader|null $manifestLoader = null,
     ) {
         $this->manifestLoader = $manifestLoader ?? new ManifestLoader();
 
-        $this->entrypoints = $configuration->entrypoints;
+        $this->entrypoints = EntrypointNormalizer::normalize($entrypoints, false);
 
         if ($configuration instanceof DevelopmentConfiguration) {
             $this->manifestPath = null;

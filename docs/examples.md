@@ -36,15 +36,13 @@ use PHPForge\Vite\Vite;
 $configuration = $isDevelopment
     ? new DevelopmentConfiguration(
         devServerUrl: 'http://localhost:5173',
-        entrypoints: ['resources/js/app.js'],
     )
     : new ProductionConfiguration(
         manifestPath: __DIR__ . '/public/build/.vite/manifest.json',
         assetBaseUrl: '/build',
-        entrypoints: ['resources/js/app.js'],
     );
 
-$vite = new Vite($configuration);
+$vite = new Vite($configuration, entrypoints: ['resources/js/app.js']);
 
 $assets = $vite->resolve();
 
@@ -77,28 +75,42 @@ The example methods belong to the consuming application; they are not package AP
 
 ## Yii2 integration
 
-Yii2 resolves aliases before constructing the framework-independent configuration. The package does not access
-`Yii::getAlias()` or `yii\web\View`:
+Register the facade as an application component so Yii2 owns its lazy construction and lifecycle. The package does not
+access `Yii::getAlias()`, the service locator, or `yii\web\View`:
 
 ```php
+use PHPForge\Vite\Configuration\DevelopmentConfiguration;
 use PHPForge\Vite\Configuration\ProductionConfiguration;
 use PHPForge\Vite\Html\HtmlRenderer;
 use PHPForge\Vite\Vite;
 
-$vite = new Vite(
-    new ProductionConfiguration(
-        manifestPath: Yii::getAlias('@webroot/build/.vite/manifest.json'),
-        assetBaseUrl: Yii::getAlias('@web/build'),
-        entrypoints: ['resources/js/app.js'],
-    ),
-);
+$config = [
+    'components' => [
+        'vite' => [
+            'class' => Vite::class,
+            '__construct()' => [
+                'configuration' => YII_ENV === 'dev'
+                    ? new DevelopmentConfiguration(
+                        devServerUrl: 'http://localhost:5173',
+                    )
+                    : new ProductionConfiguration(
+                        manifestPath: dirname(__DIR__) . '/public/build/.vite/manifest.json',
+                        assetBaseUrl: '/build',
+                    ),
+                'entrypoints' => ['resources/js/app.js'],
+            ],
+        ],
+    ],
+];
+
+/** @var Vite $vite */
+$vite = Yii::$app->get('vite');
 
 echo (new HtmlRenderer())->render($vite->resolve());
 ```
 
-Here, `@webroot` resolves to the `public` directory configured as the Vite output directory. The calls to Yii in this
-example are entirely outside the package. A Yii2 application can instead register the configured `Vite` object in its
-dependency-injection container and print the HTML from a view.
+The `__construct()` entry is Yii2 container syntax. Its values are passed to the framework-independent constructor, and
+the concrete manifest path is resolved entirely by the consuming application.
 
 ## Yii3 integration
 
@@ -114,8 +126,8 @@ static function (Aliases $aliases): Vite {
         new ProductionConfiguration(
             manifestPath: $aliases->get('@public/build/.vite/manifest.json'),
             assetBaseUrl: '/build',
-            entrypoints: ['resources/js/app.js'],
         ),
+        entrypoints: ['resources/js/app.js'],
     );
 };
 ```
@@ -132,6 +144,7 @@ without adding a React dependency to this package:
 use PHPForge\Vite\Asset\InlineModule;
 use PHPForge\Vite\Configuration\DevelopmentConfiguration;
 use PHPForge\Vite\Development\InlineModuleProviderInterface;
+use PHPForge\Vite\Vite;
 
 final class ReactRefreshPreamble implements InlineModuleProviderInterface
 {
@@ -151,9 +164,10 @@ final class ReactRefreshPreamble implements InlineModuleProviderInterface
 
 $configuration = new DevelopmentConfiguration(
     devServerUrl: 'http://localhost:5173',
-    entrypoints: ['resources/js/app.jsx'],
     inlineModuleProviders: [new ReactRefreshPreamble()],
 );
+
+$vite = new Vite($configuration, entrypoints: ['resources/js/app.jsx']);
 ```
 
 Providers run in their configured order before `@vite/client` and the entrypoint scripts. The application owns the provider

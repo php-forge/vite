@@ -67,8 +67,8 @@ use PHPForge\Vite\Vite;
 $vite = new Vite(
     new DevelopmentConfiguration(
         devServerUrl: 'http://localhost:5173',
-        entrypoints: ['resources/js/app.js'],
     ),
+    entrypoints: ['resources/js/app.js'],
 );
 
 echo (new HtmlRenderer())->render($vite->resolve());
@@ -85,8 +85,8 @@ $vite = new Vite(
     new ProductionConfiguration(
         manifestPath: '/srv/app/public/build/.vite/manifest.json',
         assetBaseUrl: '/build',
-        entrypoints: ['resources/js/app.js'],
     ),
+    entrypoints: ['resources/js/app.js'],
 );
 
 echo (new HtmlRenderer())->render($vite->resolve());
