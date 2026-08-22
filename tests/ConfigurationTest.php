@@ -26,8 +26,8 @@ final class ConfigurationTest extends TestCase
     {
         self::assertSame(
             'HTTPS://cdn.example.com/app.js',
-            (new ModuleScript('HTTPS://cdn.example.com/app.js'))->url,
-            'The original safe absolute URL must be preserved.',
+            (new ModuleScript(' HTTPS://cdn.example.com/app.js '))->url,
+            'Outer whitespace must be removed from the safe absolute URL.',
         );
     }
 

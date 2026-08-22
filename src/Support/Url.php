@@ -60,21 +60,10 @@ final class Url
             );
         }
 
-        $scheme = parse_url($baseUrl, PHP_URL_SCHEME);
-
-        if ($scheme !== null) {
-            $host = parse_url($baseUrl, PHP_URL_HOST);
-
-            if (
-                !is_string($scheme)
-                || !is_string($host)
-                || $host === ''
-                || !in_array(strtolower($scheme), ['http', 'https'], true)
-            ) {
-                throw new ConfigurationException(
-                    'The "assetBaseUrl" value must use HTTP(S) when it is an absolute URL.',
-                );
-            }
+        if (!self::isRelativeOrHttpUrl($baseUrl)) {
+            throw new ConfigurationException(
+                'The "assetBaseUrl" value must use HTTP(S) when it is an absolute URL.',
+            );
         }
 
         if ($baseUrl === '/') {
@@ -137,6 +126,8 @@ final class Url
 
     public static function requireSafeAssetUrl(string $url): string
     {
+        $url = trim($url);
+
         if ($url === '' || self::containsControlCharacter($url) || str_starts_with($url, '//')) {
             throw new ConfigurationException(
                 'Asset URLs must be non-empty and use a safe URL form.',
@@ -149,21 +140,10 @@ final class Url
             );
         }
 
-        $scheme = parse_url($url, PHP_URL_SCHEME);
-
-        if ($scheme !== null) {
-            $host = parse_url($url, PHP_URL_HOST);
-
-            if (
-                !is_string($scheme)
-                || !is_string($host)
-                || $host === ''
-                || !in_array(strtolower($scheme), ['http', 'https'], true)
-            ) {
-                throw new ConfigurationException(
-                    'Absolute asset URLs must use HTTP(S).',
-                );
-            }
+        if (!self::isRelativeOrHttpUrl($url)) {
+            throw new ConfigurationException(
+                'Absolute asset URLs must use HTTP(S).',
+            );
         }
 
         return $url;
@@ -172,5 +152,21 @@ final class Url
     private static function containsControlCharacter(string $value): bool
     {
         return preg_match('/[\x00-\x1F\x7F]/', $value) === 1;
+    }
+
+    private static function isRelativeOrHttpUrl(string $url): bool
+    {
+        $scheme = parse_url($url, PHP_URL_SCHEME);
+
+        if ($scheme === null) {
+            return true;
+        }
+
+        $host = parse_url($url, PHP_URL_HOST);
+
+        return is_string($scheme)
+            && is_string($host)
+            && $host !== ''
+            && in_array(strtolower($scheme), ['http', 'https'], true);
     }
 }

@@ -55,6 +55,7 @@ final class ConfigurationProvider
         yield 'control character' => ["/build/app.js\nmodule", 'safe URL form'];
         yield 'scheme relative' => ['//cdn.example.com/app.js', 'safe URL form'];
         yield 'data scheme' => ['data:text/javascript,alert(1)', 'HTTP(S)'];
+        yield 'leading whitespace unsafe scheme' => [' javascript:alert(1)', 'HTTP(S)'];
         yield 'unsupported absolute scheme' => ['ftp://cdn.example.com/app.js', 'HTTP(S)'];
     }
 }

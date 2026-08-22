@@ -1,5 +1,28 @@
 # Usage examples
 
+## Matching Vite build configuration
+
+The plain PHP, Yii2, and Yii3 production examples below target Vite 5 or later and assume this application-owned
+configuration:
+
+```js
+import {defineConfig} from 'vite';
+
+export default defineConfig({
+    build: {
+        outDir: 'public/build',
+        manifest: '.vite/manifest.json',
+        rollupOptions: {
+            input: 'resources/js/app.js',
+        },
+    },
+});
+```
+
+Because `build.manifest` is relative to `build.outDir`, this configuration writes
+`<project-root>/public/build/.vite/manifest.json`. Each PHP example resolves that same file through the path mechanism of
+its application or framework.
+
 ## Plain PHP
 
 Select one immutable configuration at the application's composition root:
@@ -28,7 +51,7 @@ $assets = $vite->resolve();
 echo (new HtmlRenderer())->render($assets);
 ```
 
-The production example assumes `__DIR__` is an absolute application directory.
+The production example assumes `__DIR__` is the absolute project root used by the matching Vite configuration.
 
 ## Consume neutral assets
 
@@ -73,8 +96,9 @@ $vite = new Vite(
 echo (new HtmlRenderer())->render($vite->resolve());
 ```
 
-The calls to Yii in this example are entirely outside the package. A Yii2 application can instead register the configured
-`Vite` object in its dependency-injection container and print the HTML from a view.
+Here, `@webroot` resolves to the `public` directory configured as the Vite output directory. The calls to Yii in this
+example are entirely outside the package. A Yii2 application can instead register the configured `Vite` object in its
+dependency-injection container and print the HTML from a view.
 
 ## Yii3 integration
 
@@ -97,6 +121,7 @@ static function (Aliases $aliases): Vite {
 ```
 
 Yii2 and Yii3 therefore share the package API; only the application's path-resolution and container wiring differ.
+The `@public` alias must resolve to the `public` directory configured as `build.outDir`.
 
 ## Application-provided development preamble
 
