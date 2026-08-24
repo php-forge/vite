@@ -15,7 +15,9 @@ use PHPForge\Vite\Manifest\ManifestLoader;
 use PHPForge\Vite\Tests\Provider\ManifestLoaderProvider;
 use PHPUnit\Framework\Attributes\{DataProviderExternal, Group};
 use PHPUnit\Framework\TestCase;
+use Xepozz\InternalMocker\MockerState;
 
+use function array_keys;
 use function array_map;
 use function chmod;
 use function clearstatcache;
@@ -37,6 +39,32 @@ final class ManifestLoaderTest extends TestCase
      * @var list<string> Absolute paths of the manifests created by this test, deleted during teardown.
      */
     private array $temporaryFiles = [];
+
+    public function testClearWithoutPathDiscardsEveryCachedManifest(): void
+    {
+        $firstPath = $this->temporaryManifest(
+            '{"first.js":{"file":"assets/first.js","isEntry":true}}',
+        );
+        $secondPath = $this->temporaryManifest(
+            '{"second.js":{"file":"assets/second.js","isEntry":true}}',
+        );
+        $loader = new ManifestLoader();
+        $firstManifest = $loader->load($firstPath);
+        $secondManifest = $loader->load($secondPath);
+
+        $loader->clear();
+
+        self::assertNotSame(
+            $firstManifest,
+            $loader->load($firstPath),
+            'Clearing every entry must discard the first cached manifest.',
+        );
+        self::assertNotSame(
+            $secondManifest,
+            $loader->load($secondPath),
+            'Clearing every entry must discard the second cached manifest.',
+        );
+    }
 
     public function testLoaderAllowsUnknownFieldsForForwardCompatibility(): void
     {
@@ -101,6 +129,18 @@ final class ManifestLoaderTest extends TestCase
         $entry = $manifest->get('views/bar.js');
         $shared = $manifest->get('_shared-B7PI925R.js');
 
+        self::assertSame(
+            [
+                '_shared-B7PI925R.js',
+                '_shared-ChJ_j-JJ.css',
+                'logo.svg',
+                'baz.js',
+                'views/bar.js',
+                'views/foo.js',
+            ],
+            array_keys($manifest->chunks()),
+            'Every manifest chunk must remain available in source order.',
+        );
         self::assertNotNull(
             $entry,
             'The entry chunk must be present.',
@@ -200,6 +240,20 @@ final class ManifestLoaderTest extends TestCase
         (new ManifestLoader())->load($path);
     }
 
+    public function testThrowManifestReadExceptionWhenInspectionFails(): void
+    {
+        $path = $this->temporaryManifest('{}');
+
+        MockerState::addCondition('PHPForge\\Vite\\Manifest', 'stat', [$path], false);
+
+        $this->expectException(ManifestReadException::class);
+        $this->expectExceptionMessage(
+            Message::MANIFEST_INSPECTION_FAILED->getMessage($path),
+        );
+
+        (new ManifestLoader())->load($path);
+    }
+
     public function testThrowManifestReadExceptionWhenManifestIsUnreadable(): void
     {
         $path = $this->temporaryManifest('{}');
@@ -223,6 +277,25 @@ final class ManifestLoaderTest extends TestCase
         } finally {
             chmod($path, 0o600);
         }
+    }
+
+    public function testThrowManifestReadExceptionWhenReadingFails(): void
+    {
+        $path = $this->temporaryManifest('{}');
+
+        MockerState::addCondition(
+            'PHPForge\\Vite\\Manifest',
+            'file_get_contents',
+            [$path, false, null, 0, null],
+            false,
+        );
+
+        $this->expectException(ManifestReadException::class);
+        $this->expectExceptionMessage(
+            Message::MANIFEST_READ_FAILED->getMessage($path),
+        );
+
+        (new ManifestLoader())->load($path);
     }
 
     protected function tearDown(): void

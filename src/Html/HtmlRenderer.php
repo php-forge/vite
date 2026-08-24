@@ -15,7 +15,7 @@ use function is_float;
 use function is_int;
 use function is_string;
 use function preg_match;
-use function preg_replace;
+use function str_ireplace;
 use function str_starts_with;
 use function strtolower;
 
@@ -47,8 +47,8 @@ final class HtmlRenderer
      * @param AssetCollection $assets Resolved assets to render.
      * @param HtmlRenderOptions|null $options Per-render policy, or `null` to apply the defaults.
      *
-     * @throws HtmlRenderingException if an asset type is unsupported, an inline module cannot be neutralized, or a
-     * custom attribute is malformed, reserved, duplicated, or carries an unsupported value.
+     * @throws HtmlRenderingException if a custom attribute is malformed, reserved, duplicated, or carries an
+     * unsupported value.
      *
      * @return string The rendered tags joined by the configured separator.
      */
@@ -110,58 +110,39 @@ final class HtmlRenderer
      * Module scripts and inline modules become `<script type="module">` elements, stylesheets and preload hints
      * become `<link>` elements. Inline source has its `</script` sequences neutralized before being embedded.
      *
-     * @param AssetInterface $asset Asset to render.
+     * @param InlineModule|ModulePreload|ModuleScript|Stylesheet $asset Asset to render.
      * @param HtmlRenderOptions $options Per-render policy applied to the tag.
      *
-     * @throws HtmlRenderingException if the inline source cannot be neutralized, or the asset type is unsupported.
+     * @throws HtmlRenderingException if the asset's custom attributes cannot be rendered.
      *
      * @return string The rendered tag.
      */
-    private function renderAsset(AssetInterface $asset, HtmlRenderOptions $options): string
-    {
-        if ($asset instanceof ModuleScript) {
-            return Script::tag()
+    private function renderAsset(
+        InlineModule|ModulePreload|ModuleScript|Stylesheet $asset,
+        HtmlRenderOptions $options,
+    ): string {
+        return match (true) {
+            $asset instanceof ModuleScript => Script::tag()
                 ->attributes($this->attributesFor($asset, $options))
                 ->type('module')
                 ->src($asset->url)
-                ->render();
-        }
-
-        if ($asset instanceof Stylesheet) {
-            return Link::tag()
+                ->render(),
+            $asset instanceof Stylesheet => Link::tag()
                 ->attributes($this->attributesFor($asset, $options))
                 ->rel('stylesheet')
                 ->href($asset->url)
-                ->render();
-        }
-
-        if ($asset instanceof ModulePreload) {
-            return Link::tag()
+                ->render(),
+            $asset instanceof ModulePreload => Link::tag()
                 ->attributes($this->attributesFor($asset, $options))
                 ->rel('modulepreload')
                 ->href($asset->url)
-                ->render();
-        }
-
-        if ($asset instanceof InlineModule) {
-            $source = preg_replace('~</script~i', '<\\/script', $asset->source);
-
-            if ($source === null) {
-                throw new HtmlRenderingException(
-                    Message::INLINE_MODULE_RENDER_FAILED->getMessage(),
-                );
-            }
-
-            return Script::tag()
+                ->render(),
+            $asset instanceof InlineModule => Script::tag()
                 ->attributes($this->attributesFor($asset, $options))
                 ->type('module')
-                ->html($source)
-                ->render();
-        }
-
-        throw new HtmlRenderingException(
-            Message::ASSET_IMPLEMENTATION_UNSUPPORTED->getMessage(),
-        );
+                ->html(str_ireplace('</script', '<\\/script', $asset->source))
+                ->render(),
+        };
     }
 
     /**

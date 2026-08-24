@@ -7,6 +7,7 @@ namespace PHPForge\Vite\Tests;
 use PHPForge\Vite\Asset\{AssetCollection, ModulePreload, ModuleScript, Stylesheet};
 use PHPForge\Vite\Configuration\ProductionConfiguration;
 use PHPForge\Vite\Exception\{EntrypointNotFoundException, InvalidManifestException, Message};
+use PHPForge\Vite\Manifest\ManifestLoader;
 use PHPForge\Vite\Vite;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -45,6 +46,26 @@ final class ViteProductionTest extends TestCase
             ],
             $this->describe($assets),
             'The cyclic root must be omitted while imported chunks remain ordered.',
+        );
+    }
+
+    public function testClearManifestCacheDiscardsTheProductionManifest(): void
+    {
+        $manifestPath = __DIR__ . '/Fixture/manifest.json';
+        $loader = new ManifestLoader();
+        $cachedManifest = $loader->load($manifestPath);
+        $vite = new Vite(
+            new ProductionConfiguration($manifestPath, '/build'),
+            ['views/foo.js'],
+            $loader,
+        );
+
+        $vite->clearManifestCache();
+
+        self::assertNotSame(
+            $cachedManifest,
+            $loader->load($manifestPath),
+            'Clearing through the facade must discard the production manifest.',
         );
     }
 
@@ -94,9 +115,12 @@ final class ViteProductionTest extends TestCase
         )->resolve();
 
         self::assertSame(
-            [ModuleScript::class . ':/build/assets/bundle.js'],
+            [
+                ModuleScript::class . ':/build/assets/bundle.js',
+                ModulePreload::class . ':/build/assets/vendor.js',
+            ],
             $this->describe($assets),
-            'A shared output file must appear once.',
+            'A shared output file must appear once without suppressing later preloads.',
         );
     }
 

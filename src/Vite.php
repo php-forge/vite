@@ -51,7 +51,7 @@ final readonly class Vite
      * eagerly but may be empty, since {@see Vite::resolve()} accepts a per-call override.
      *
      * @param DevelopmentConfiguration|ProductionConfiguration $configuration Configuration selecting the strategy.
-     * @param list<string> $entrypoints Default entrypoints resolved when no override is supplied.
+     * @param list<mixed> $entrypoints Default entrypoints to validate and resolve when no override is supplied.
      * @param ManifestLoader|null $manifestLoader Loader to share across instances, or `null` to create one.
      *
      * @throws InvalidEntrypointException if a default entrypoint is not a `string`, is empty, or contains a

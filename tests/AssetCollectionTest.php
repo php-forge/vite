@@ -9,6 +9,7 @@ use PHPForge\Vite\Exception\{ConfigurationException, Message};
 use PHPForge\Vite\Tests\Fixture\UnsupportedAssetStub;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 use function iterator_to_array;
 
@@ -125,5 +126,15 @@ final class AssetCollectionTest extends TestCase
         );
 
         new AssetCollection([new UnsupportedAssetStub()]);
+    }
+
+    public function testThrowConfigurationExceptionForValueThatIsNotAnAsset(): void
+    {
+        $this->expectException(ConfigurationException::class);
+        $this->expectExceptionMessage(
+            Message::ASSET_COLLECTION_ITEM_INVALID->getMessage(),
+        );
+
+        new AssetCollection([new stdClass()]);
     }
 }

@@ -10,6 +10,10 @@
   failOnWarning="true"
   stopOnFailure="false"
 >
+  <extensions>
+    <bootstrap class="PHPForge\Vite\Tests\Support\InternalMockerExtension"/>
+  </extensions>
+
   <testsuites>
     <testsuite name="PHPForge-Vite">
       <directory>tests</directory>

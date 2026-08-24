@@ -7,10 +7,10 @@ namespace PHPForge\Vite\Tests;
 use PHPForge\Vite\Asset\{AssetCollection, AssetInterface, InlineModule, ModulePreload, ModuleScript, Stylesheet};
 use PHPForge\Vite\Exception\{HtmlRenderingException, Message};
 use PHPForge\Vite\Html\{HtmlRenderOptions, HtmlRenderer};
+use PHPForge\Vite\Tests\Fixture\UnsupportedAssetStub;
 use PHPForge\Vite\Tests\Provider\HtmlRendererProvider;
 use PHPUnit\Framework\Attributes\{DataProviderExternal, Group};
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
 
 /**
  * Unit tests for {@see HtmlRenderer} output ordering, escaping, attributes, and CSP nonce support.
@@ -149,9 +149,7 @@ final class HtmlRendererTest extends TestCase
             Message::HTML_ATTRIBUTE_PROVIDER_RESULT_INVALID->getMessage(),
         );
 
-        $options = (new ReflectionClass(HtmlRenderOptions::class))->newInstanceArgs(
-            [null, [], [], [], [], static fn(): string => 'invalid'],
-        );
+        $options = new HtmlRenderOptions(attributeProvider: static fn(): string => 'invalid');
 
         $options->attributesFor(new ModuleScript('/app.js'));
     }
@@ -167,7 +165,7 @@ final class HtmlRendererTest extends TestCase
     }
 
     /**
-     * @param array<mixed, mixed> $attributes
+     * @param array<array-key, mixed> $attributes
      * @param list<int|string> $arguments
      */
     #[DataProviderExternal(HtmlRendererProvider::class, 'unsafeAttributes')]
@@ -181,10 +179,18 @@ final class HtmlRendererTest extends TestCase
             $message->getMessage(...$arguments),
         );
 
-        $options = (new ReflectionClass(HtmlRenderOptions::class))->newInstanceArgs(
-            [null, $attributes],
-        );
+        $options = new HtmlRenderOptions(moduleScriptAttributes: $attributes);
 
         (new HtmlRenderer())->render(new AssetCollection([new ModuleScript('/app.js')]), $options);
+    }
+
+    public function testThrowHtmlRenderingExceptionForUnsupportedAssetAttributes(): void
+    {
+        $this->expectException(HtmlRenderingException::class);
+        $this->expectExceptionMessage(
+            Message::ASSET_IMPLEMENTATION_UNSUPPORTED->getMessage(),
+        );
+
+        (new HtmlRenderOptions())->attributesFor(new UnsupportedAssetStub());
     }
 }

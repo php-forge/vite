@@ -70,6 +70,10 @@ final class ConfigurationProvider
      */
     public static function invalidProductionBaseUrls(): iterable
     {
+        yield 'malformed absolute URL' => [
+            'http://:',
+            Message::ASSET_BASE_URL_INVALID,
+        ];
         yield 'unsafe scheme' => [
             'javascript:alert(1)',
             Message::ASSET_BASE_URL_SCHEME_INVALID,
@@ -101,6 +105,10 @@ final class ConfigurationProvider
      */
     public static function unsafeAssetUrls(): iterable
     {
+        yield 'malformed absolute URL' => [
+            'http://:',
+            Message::ASSET_URL_FORM_INVALID,
+        ];
         yield 'empty' => [
             '',
             Message::ASSET_URL_FORM_UNSAFE,

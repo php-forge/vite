@@ -13,7 +13,7 @@ use stdClass;
 final class HtmlRendererProvider
 {
     /**
-     * @return iterable<string, array{array<mixed, mixed>, Message, list<int|string>}>
+     * @return iterable<string, array{array<array-key, mixed>, Message, list<int|string>}>
      */
     public static function unsafeAttributes(): iterable
     {
