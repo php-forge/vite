@@ -6,7 +6,7 @@ namespace PHPForge\Vite\Tests;
 
 use PHPForge\Vite\Asset\{AssetCollection, InlineModule, ModulePreload, ModuleScript, Stylesheet};
 use PHPForge\Vite\Exception\{ConfigurationException, Message};
-use PHPForge\Vite\Tests\Fixtures\UnsupportedAssetStub;
+use PHPForge\Vite\Tests\Fixture\UnsupportedAssetStub;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 

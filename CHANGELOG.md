@@ -8,3 +8,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 0.1.0 Under development
 
 - feat: added a framework-agnostic Vite facade with explicit development and production configuration.
+- docs: add class-level PHPDoc for the framework-neutral Vite APIs.

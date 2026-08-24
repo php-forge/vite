@@ -37,10 +37,18 @@ use const JSON_THROW_ON_ERROR;
 final class ManifestLoader
 {
     /**
-     * @var array<string, array{fingerprint: string, manifest: Manifest}>
+     * @var array<string, array{fingerprint: string, manifest: Manifest}> Parsed manifests keyed by absolute path,
+     * each paired with the stat fingerprint that produced it.
      */
     private array $cache = [];
 
+    /**
+     * Discards cached manifests so that the next load reads from disk.
+     *
+     * @param string|null $manifestPath Absolute path of the manifest to forget, or `null` to clear every entry.
+     *
+     * @throws ConfigurationException if a path is supplied and is not absolute.
+     */
     public function clear(string|null $manifestPath = null): void
     {
         if ($manifestPath === null) {
@@ -54,6 +62,22 @@ final class ManifestLoader
         unset($this->cache[$manifestPath]);
     }
 
+    /**
+     * Loads, validates, and caches the manifest stored at the supplied absolute path.
+     *
+     * The cache is keyed by path and invalidated by a stat fingerprint of inode, size, mtime, and ctime, so an
+     * unchanged file is parsed once while a rebuilt file is picked up on the next call.
+     *
+     * @param string $manifestPath Absolute path to the manifest emitted by the Vite build.
+     *
+     * @throws ConfigurationException if the path is not absolute.
+     * @throws InvalidManifestException if the file is not valid JSON, does not decode to an object, or declares an
+     * invalid entry.
+     * @throws ManifestNotFoundException if no file exists at the path.
+     * @throws ManifestReadException if the file cannot be inspected or read.
+     *
+     * @return Manifest The validated manifest.
+     */
     public function load(string $manifestPath): Manifest
     {
         $manifestPath = Path::requireAbsolute($manifestPath, 'manifestPath');
@@ -65,6 +89,7 @@ final class ManifestLoader
         }
 
         clearstatcache(true, $manifestPath);
+
         $metadata = stat($manifestPath);
 
         if ($metadata === false) {
@@ -110,13 +135,18 @@ final class ManifestLoader
         }
 
         $manifest = $this->parse($manifestPath, $decoded);
+
         $this->cache[$manifestPath] = ['fingerprint' => $fingerprint, 'manifest' => $manifest];
 
         return $manifest;
     }
 
     /**
-     * @param array<int|string, int> $metadata
+     * Builds the change-detection fingerprint of a manifest file from its stat metadata.
+     *
+     * @param array<int|string, int> $metadata Result of `stat()` for the manifest file.
+     *
+     * @return string Fingerprint combining inode, size, mtime, and ctime.
      */
     private function fingerprint(array $metadata): string
     {
@@ -129,6 +159,18 @@ final class ManifestLoader
         );
     }
 
+    /**
+     * Reads an optional boolean field from a decoded manifest entry.
+     *
+     * @param stdClass $chunk Decoded manifest entry.
+     * @param string $field Field name to read.
+     * @param string $key Manifest key reported in the exception message.
+     * @param string $manifestPath Manifest path reported in the exception message.
+     *
+     * @throws InvalidManifestException if the field is present but is not a `bool`.
+     *
+     * @return bool The field value, or `false` when the field is absent.
+     */
     private function optionalBool(stdClass $chunk, string $field, string $key, string $manifestPath): bool
     {
         if (!property_exists($chunk, $field)) {
@@ -151,7 +193,21 @@ final class ManifestLoader
     }
 
     /**
-     * @return list<string>
+     * Reads an optional list-of-strings field from a decoded manifest entry.
+     *
+     * When `$assetPaths` is `true`, every item is additionally normalized as a relative build path, so a manifest
+     * cannot reference a location outside the configured asset base URL.
+     *
+     * @param stdClass $chunk Decoded manifest entry.
+     * @param string $field Field name to read.
+     * @param string $key Manifest key reported in the exception message.
+     * @param string $manifestPath Manifest path reported in the exception message.
+     * @param bool $assetPaths Whether each item must also be a valid relative asset path.
+     *
+     * @throws InvalidManifestException if the field is not a list, holds a non-string or empty item, or holds an
+     * item that is not a valid asset path while `$assetPaths` is `true`.
+     *
+     * @return list<string> The field items, or an empty list when the field is absent.
      */
     private function optionalList(
         stdClass $chunk,
@@ -215,6 +271,18 @@ final class ManifestLoader
         return $items;
     }
 
+    /**
+     * Reads an optional string field from a decoded manifest entry.
+     *
+     * @param stdClass $chunk Decoded manifest entry.
+     * @param string $field Field name to read.
+     * @param string $key Manifest key reported in the exception message.
+     * @param string $manifestPath Manifest path reported in the exception message.
+     *
+     * @throws InvalidManifestException if the field is present but is not a `string`.
+     *
+     * @return string|null The field value, or `null` when the field is absent.
+     */
     private function optionalString(stdClass $chunk, string $field, string $key, string $manifestPath): string|null
     {
         if (!property_exists($chunk, $field)) {
@@ -236,6 +304,20 @@ final class ManifestLoader
         return $value;
     }
 
+    /**
+     * Converts a decoded manifest object into validated chunks and verifies their cross-references.
+     *
+     * Every entry is validated first, then a second pass asserts that each `imports` and `dynamicImports` reference
+     * resolves to a declared chunk.
+     *
+     * @param string $manifestPath Manifest path reported in the exception messages.
+     * @param stdClass $decoded Decoded manifest root object.
+     *
+     * @throws InvalidManifestException if an entry is malformed, declares no valid `file`, holds an invalid field,
+     * or references a chunk the manifest does not declare.
+     *
+     * @return Manifest The validated manifest.
+     */
     private function parse(string $manifestPath, stdClass $decoded): Manifest
     {
         $chunks = [];

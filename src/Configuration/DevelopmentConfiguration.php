@@ -13,14 +13,24 @@ use PHPForge\Vite\Support\Url;
  */
 final readonly class DevelopmentConfiguration
 {
-    public string $devServerUrl;
     /**
-     * @var list<InlineModuleProviderInterface>
+     * Normalized development-server URL, without a trailing separator.
+     */
+    public string $devServerUrl;
+
+    /**
+     * @var list<InlineModuleProviderInterface> Providers emitted, in order, before the Vite client.
      */
     public array $inlineModuleProviders;
 
     /**
-     * @param list<InlineModuleProviderInterface> $inlineModuleProviders
+     * @param string $devServerUrl Absolute HTTP(S) URL of the running Vite development server.
+     * @param bool $includeViteClient Whether the `@vite/client` module script is emitted.
+     * @param list<InlineModuleProviderInterface> $inlineModuleProviders Providers of application-owned inline
+     * modules that must run before the Vite client.
+     *
+     * @throws ConfigurationException if the development-server URL is not an absolute HTTP(S) URL, or if a provider
+     * does not implement {@see InlineModuleProviderInterface}.
      */
     public function __construct(
         string $devServerUrl,
@@ -28,13 +38,18 @@ final readonly class DevelopmentConfiguration
         array $inlineModuleProviders = [],
     ) {
         $this->devServerUrl = Url::normalizeDevServerUrl($devServerUrl);
+
         $this->inlineModuleProviders = $this->normalizeProviders($inlineModuleProviders);
     }
 
     /**
-     * @param iterable<mixed> $providers
+     * Rejects any provider that does not satisfy the contract, and reindexes the survivors as a list.
      *
-     * @return list<InlineModuleProviderInterface>
+     * @param iterable<mixed> $providers Raw providers supplied by the application.
+     *
+     * @throws ConfigurationException if a value does not implement {@see InlineModuleProviderInterface}.
+     *
+     * @return list<InlineModuleProviderInterface> Providers in the order supplied.
      */
     private function normalizeProviders(iterable $providers): array
     {

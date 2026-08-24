@@ -34,7 +34,7 @@ use function unlink;
 final class ManifestLoaderTest extends TestCase
 {
     /**
-     * @var list<string>
+     * @var list<string> Absolute paths of the manifests created by this test, deleted during teardown.
      */
     private array $temporaryFiles = [];
 

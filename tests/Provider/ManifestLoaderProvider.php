@@ -8,9 +8,6 @@ use PHPForge\Vite\Exception\Message;
 
 /**
  * Data provider for {@see \PHPForge\Vite\Tests\ManifestLoaderTest} test cases.
- *
- * Provides invalid manifests and their exception message arguments. A `null` argument represents the temporary
- * manifest path created by the consuming test.
  */
 final class ManifestLoaderProvider
 {

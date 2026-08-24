@@ -103,6 +103,7 @@ final class HtmlRendererTest extends TestCase
             'URLs, values, booleans, and omitted attributes must be encoded safely.',
         );
     }
+
     public function testRendererPreservesCollectionOrder(): void
     {
         $assets = new AssetCollection(

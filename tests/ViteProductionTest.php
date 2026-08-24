@@ -100,6 +100,7 @@ final class ViteProductionTest extends TestCase
         );
     }
 
+
     public function testImportedCssChunkIsRenderedAndNotPreloaded(): void
     {
         $assets = $this->vite('css-chunk-import-manifest.json', ['resources/js/app.js'])->resolve();
@@ -264,7 +265,11 @@ final class ViteProductionTest extends TestCase
     }
 
     /**
-     * @return list<string>
+     * Flattens a collection into `type:url` strings so an assertion can compare both order and asset type at once.
+     *
+     * @param AssetCollection $collection Resolved assets to describe.
+     *
+     * @return list<string> One `type:url` entry per URL-bearing asset, in collection order.
      */
     private function describe(AssetCollection $collection): array
     {
@@ -280,7 +285,12 @@ final class ViteProductionTest extends TestCase
     }
 
     /**
-     * @param list<string> $entrypoints
+     * Builds a facade over a manifest fixture, using `/build` as the asset base URL.
+     *
+     * @param string $fixture File name of the manifest fixture under `tests/Fixture`.
+     * @param list<string> $entrypoints Default entrypoints for the facade.
+     *
+     * @return Vite Facade configured for production resolution.
      */
     private function vite(string $fixture, array $entrypoints): Vite
     {

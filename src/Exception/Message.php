@@ -95,8 +95,8 @@ enum Message: string
      *
      * Format: "Each development inline module provider must implement InlineModuleProviderInterface."
      */
-    case DEVELOPMENT_INLINE_MODULE_PROVIDER_INVALID
-        = 'Each development inline module provider must implement InlineModuleProviderInterface.';
+    case DEVELOPMENT_INLINE_MODULE_PROVIDER_INVALID = 'Each development inline module provider must implement '
+        . 'InlineModuleProviderInterface.';
 
     /**
      * The development server URL is not an absolute HTTP(S) URL.
@@ -201,8 +201,7 @@ enum Message: string
      *
      * Format: "The Vite manifest entry \"%s\" in \"%s\" has an invalid \"file\" path."
      */
-    case MANIFEST_ENTRY_FILE_PATH_INVALID
-        = 'The Vite manifest entry "%s" in "%s" has an invalid "file" path.';
+    case MANIFEST_ENTRY_FILE_PATH_INVALID = 'The Vite manifest entry "%s" in "%s" has an invalid "file" path.';
 
     /**
      * A manifest contains an invalid entry.
@@ -244,16 +243,14 @@ enum Message: string
      *
      * Format: "The Vite manifest entry \"%s\" in \"%s\" contains an invalid \"%s[%d]\" value."
      */
-    case MANIFEST_LIST_ITEM_INVALID
-        = 'The Vite manifest entry "%s" in "%s" contains an invalid "%s[%d]" value.';
+    case MANIFEST_LIST_ITEM_INVALID = 'The Vite manifest entry "%s" in "%s" contains an invalid "%s[%d]" value.';
 
     /**
      * A manifest list contains an invalid asset path.
      *
      * Format: "The Vite manifest entry \"%s\" in \"%s\" contains an invalid \"%s[%d]\" path."
      */
-    case MANIFEST_LIST_ITEM_PATH_INVALID
-        = 'The Vite manifest entry "%s" in "%s" contains an invalid "%s[%d]" path.';
+    case MANIFEST_LIST_ITEM_PATH_INVALID = 'The Vite manifest entry "%s" in "%s" contains an invalid "%s[%d]" path.';
 
     /**
      * A manifest file does not exist.
@@ -274,16 +271,14 @@ enum Message: string
      *
      * Format: "The Vite manifest entry \"%s\" in \"%s\" references missing \"%s\" chunk \"%s\"."
      */
-    case MANIFEST_REFERENCE_MISSING
-        = 'The Vite manifest entry "%s" in "%s" references missing "%s" chunk "%s".';
+    case MANIFEST_REFERENCE_MISSING = 'The Vite manifest entry "%s" in "%s" references missing "%s" chunk "%s".';
 
     /**
      * A resolved manifest import is missing unexpectedly.
      *
      * Format: "The Vite manifest entry \"%s\" in \"%s\" references missing chunk \"%s\"."
      */
-    case MANIFEST_RESOLVER_REFERENCE_MISSING
-        = 'The Vite manifest entry "%s" in "%s" references missing chunk "%s".';
+    case MANIFEST_RESOLVER_REFERENCE_MISSING = 'The Vite manifest entry "%s" in "%s" references missing chunk "%s".';
 
     /**
      * A manifest root is not a JSON object.

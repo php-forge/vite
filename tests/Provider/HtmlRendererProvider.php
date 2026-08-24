@@ -9,8 +9,6 @@ use stdClass;
 
 /**
  * Data provider for {@see \PHPForge\Vite\Tests\HtmlRendererTest} test cases.
- *
- * Provides unsafe attributes and their exception message arguments.
  */
 final class HtmlRendererProvider
 {
