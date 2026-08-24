@@ -40,14 +40,15 @@ final class HtmlRenderer
     /**
      * Renders a collection of neutral assets as HTML5 tags joined by the configured separator.
      *
-     * Assets are rendered in collection order; each one is mapped to the tag its type implies, and the URL, the inline
-     * source, and every attribute value are escaped by the underlying UI Awesome tag builders.
+     * Assets are rendered in collection order, each one mapped to the tag its type implies. The UI Awesome tag
+     * builders encode URLs and attribute values; inline module source is embedded raw through `Script::html()` and is
+     * protected only by neutralizing its closing `</script` sequences.
      *
      * @param AssetCollection $assets Resolved assets to render.
      * @param HtmlRenderOptions|null $options Per-render policy, or `null` to apply the defaults.
      *
      * @throws HtmlRenderingException if an asset type is unsupported, an inline module cannot be neutralized, or a
-     * custom attribute is reserved, duplicated, or carries an unsupported value.
+     * custom attribute is malformed, reserved, duplicated, or carries an unsupported value.
      *
      * @return string The rendered tags joined by the configured separator.
      */
@@ -73,8 +74,8 @@ final class HtmlRenderer
      * @param AssetInterface $asset Asset the attributes are computed for.
      * @param HtmlRenderOptions $options Per-render policy supplying the nonce and the custom attributes.
      *
-     * @throws HtmlRenderingException if the asset type is unsupported, the attribute provider returns a non-array, or a
-     * custom attribute is invalid.
+     * @throws HtmlRenderingException if the asset type is unsupported, the attribute provider returns a non-array, or
+     * a custom attribute is malformed, reserved, duplicated, or carries an unsupported value.
      *
      * @return array<string, bool|float|int|string|null> Attributes ready to hand to the tag builder.
      */
