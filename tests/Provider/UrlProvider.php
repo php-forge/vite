@@ -6,8 +6,6 @@ namespace PHPForge\Vite\Tests\Provider;
 
 /**
  * Data provider for {@see \PHPForge\Vite\Tests\UrlTest} test cases.
- *
- * Provides base URL and asset path combinations for URL joining.
  */
 final class UrlProvider
 {

@@ -25,7 +25,9 @@ use function strtolower;
 final class HtmlRenderer
 {
     /**
-     * @var array<string, true>
+     * Attribute names the renderer emits itself and therefore refuses to accept from callers.
+     *
+     * @var array<string, true> Lowercased attribute names used as a lookup set.
      */
     private const array RESERVED_ATTRIBUTES = [
         'href' => true,
@@ -35,6 +37,20 @@ final class HtmlRenderer
         'type' => true,
     ];
 
+    /**
+     * Renders a collection of neutral assets as HTML5 tags joined by the configured separator.
+     *
+     * Assets are rendered in collection order; each one is mapped to the tag its type implies, and the URL, the inline
+     * source, and every attribute value are escaped by the underlying UI Awesome tag builders.
+     *
+     * @param AssetCollection $assets Resolved assets to render.
+     * @param HtmlRenderOptions|null $options Per-render policy, or `null` to apply the defaults.
+     *
+     * @throws HtmlRenderingException if an asset type is unsupported, an inline module cannot be neutralized, or a
+     * custom attribute is reserved, duplicated, or carries an unsupported value.
+     *
+     * @return string The rendered tags joined by the configured separator.
+     */
     public function render(AssetCollection $assets, HtmlRenderOptions|null $options = null): string
     {
         $options ??= new HtmlRenderOptions();
@@ -49,7 +65,18 @@ final class HtmlRenderer
     }
 
     /**
-     * @return array<string, bool|float|int|string|null>
+     * Builds the final attribute set for one asset, starting from the CSP nonce and applying validated custom
+     * attributes on top.
+     *
+     * Attributes resolving to `null` or `false` are dropped rather than emitted.
+     *
+     * @param AssetInterface $asset Asset the attributes are computed for.
+     * @param HtmlRenderOptions $options Per-render policy supplying the nonce and the custom attributes.
+     *
+     * @throws HtmlRenderingException if the asset type is unsupported, the attribute provider returns a non-array, or a
+     * custom attribute is invalid.
+     *
+     * @return array<string, bool|float|int|string|null> Attributes ready to hand to the tag builder.
      */
     private function attributesFor(AssetInterface $asset, HtmlRenderOptions $options): array
     {
@@ -76,6 +103,19 @@ final class HtmlRenderer
         return $attributes;
     }
 
+    /**
+     * Maps one asset to its HTML5 tag.
+     *
+     * Module scripts and inline modules become `<script type="module">` elements, stylesheets and preload hints
+     * become `<link>` elements. Inline source has its `</script` sequences neutralized before being embedded.
+     *
+     * @param AssetInterface $asset Asset to render.
+     * @param HtmlRenderOptions $options Per-render policy applied to the tag.
+     *
+     * @throws HtmlRenderingException if the inline source cannot be neutralized, or the asset type is unsupported.
+     *
+     * @return string The rendered tag.
+     */
     private function renderAsset(AssetInterface $asset, HtmlRenderOptions $options): string
     {
         if ($asset instanceof ModuleScript) {
@@ -124,9 +164,19 @@ final class HtmlRenderer
     }
 
     /**
-     * @param array<string, true> $seen
+     * Validates one caller-supplied attribute against the renderer's safety rules.
      *
-     * @return array{string, bool|float|int|string|null, string}
+     * Rejects malformed names, the attributes the renderer owns, duplicates within a single tag, every `on*` event
+     * handler, `style`, and any value that is not a scalar, `null`, or a finite `float`.
+     *
+     * @param mixed $name Attribute name supplied by the caller.
+     * @param mixed $value Attribute value supplied by the caller.
+     * @param array<string, true> $seen Lowercased names already accepted for the current tag.
+     *
+     * @throws HtmlRenderingException if the name is malformed, reserved, or duplicated, or the value is
+     * unsupported.
+     *
+     * @return array{string, bool|float|int|string|null, string} The name, the value, and the lowercased name.
      */
     private function validateCustomAttribute(mixed $name, mixed $value, array $seen): array
     {

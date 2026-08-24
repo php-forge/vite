@@ -6,4 +6,7 @@ namespace PHPForge\Vite\Exception;
 
 use InvalidArgumentException;
 
+/**
+ * Reports unsafe or unsupported HTML rendering options.
+ */
 final class HtmlRenderingException extends InvalidArgumentException implements ViteException {}

@@ -21,12 +21,15 @@ use function in_array;
 final readonly class AssetCollection implements Countable, IteratorAggregate
 {
     /**
-     * @var list<AssetInterface>
+     * @var list<AssetInterface> Accepted assets in insertion order, with per-type duplicates removed.
      */
     private array $assets;
 
     /**
-     * @param iterable<AssetInterface> $assets
+     * @param iterable<AssetInterface> $assets Assets to collect.
+     *
+     * @throws ConfigurationException if a value does not implement {@see AssetInterface}, or implements it without
+     * being one of the four supported asset types.
      */
     public function __construct(iterable $assets = [])
     {
@@ -52,25 +55,45 @@ final readonly class AssetCollection implements Countable, IteratorAggregate
     }
 
     /**
-     * @return list<AssetInterface>
+     * Returns every collected asset in insertion order, regardless of type.
+     *
+     * @return list<AssetInterface> The collected assets.
      */
     public function all(): array
     {
         return $this->assets;
     }
 
-    public function append(AssetInterface ...$assets): self
+    /**
+     * Returns a new collection with the supplied assets added after the current ones.
+     *
+     * The receiver is left untouched; deduplication is re-applied across the combined sequence.
+     *
+     * @param AssetInterface ...$assets Assets to add at the end.
+     *
+     * @throws ConfigurationException if an asset is not one of the four supported types.
+     *
+     * @return AssetCollection A new collection holding both sequences.
+     */
+    public function append(AssetInterface ...$assets): AssetCollection
     {
         return new self([...$this->assets, ...$assets]);
     }
 
+    /**
+     * Counts the collected assets after deduplication.
+     *
+     * @return int<0, max> Number of assets in the collection.
+     */
     public function count(): int
     {
         return count($this->assets);
     }
 
     /**
-     * @return Traversable<int, AssetInterface>
+     * Iterates over the collected assets in insertion order.
+     *
+     * @return Traversable<int, AssetInterface> Iterator over the collected assets.
      */
     public function getIterator(): Traversable
     {
@@ -78,7 +101,9 @@ final readonly class AssetCollection implements Countable, IteratorAggregate
     }
 
     /**
-     * @return list<InlineModule>
+     * Filters the collection down to its inline modules.
+     *
+     * @return list<InlineModule> Inline modules in insertion order.
      */
     public function inlineModules(): array
     {
@@ -94,7 +119,9 @@ final readonly class AssetCollection implements Countable, IteratorAggregate
     }
 
     /**
-     * @return list<ModulePreload>
+     * Filters the collection down to its module-preload hints.
+     *
+     * @return list<ModulePreload> Module preloads in insertion order.
      */
     public function modulePreloads(): array
     {
@@ -110,7 +137,9 @@ final readonly class AssetCollection implements Countable, IteratorAggregate
     }
 
     /**
-     * @return list<ModuleScript>
+     * Filters the collection down to its module scripts.
+     *
+     * @return list<ModuleScript> Module scripts in insertion order.
      */
     public function moduleScripts(): array
     {
@@ -125,13 +154,26 @@ final readonly class AssetCollection implements Countable, IteratorAggregate
         return $assets;
     }
 
-    public function prepend(AssetInterface ...$assets): self
+    /**
+     * Returns a new collection with the supplied assets added before the current ones.
+     *
+     * The receiver is left untouched; deduplication is re-applied across the combined sequence.
+     *
+     * @param AssetInterface ...$assets Assets to add at the beginning.
+     *
+     * @throws ConfigurationException if an asset is not one of the four supported types.
+     *
+     * @return AssetCollection A new collection holding both sequences.
+     */
+    public function prepend(AssetInterface ...$assets): AssetCollection
     {
         return new self([...$assets, ...$this->assets]);
     }
 
     /**
-     * @return list<Stylesheet>
+     * Filters the collection down to its stylesheets.
+     *
+     * @return list<Stylesheet> Stylesheets in insertion order.
      */
     public function stylesheets(): array
     {
@@ -147,7 +189,14 @@ final readonly class AssetCollection implements Countable, IteratorAggregate
     }
 
     /**
-     * @return InlineModule|ModulePreload|ModuleScript|Stylesheet
+     * Narrows an arbitrary value to one of the four supported asset types.
+     *
+     * @param mixed $asset Value taken from the incoming iterable.
+     *
+     * @throws ConfigurationException if the value does not implement {@see AssetInterface}, or implements it without
+     * being a supported type.
+     *
+     * @return InlineModule|ModulePreload|ModuleScript|Stylesheet The narrowed asset.
      */
     private function requireAsset(mixed $asset): AssetInterface
     {

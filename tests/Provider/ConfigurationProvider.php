@@ -8,8 +8,6 @@ use PHPForge\Vite\Exception\Message;
 
 /**
  * Data provider for {@see \PHPForge\Vite\Tests\ConfigurationTest} test cases.
- *
- * Provides invalid configuration values and their exception messages.
  */
 final class ConfigurationProvider
 {

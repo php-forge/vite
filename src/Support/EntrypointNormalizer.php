@@ -14,16 +14,28 @@ use function preg_match;
 use function str_contains;
 use function trim;
 
+/**
+ * Normalizes and validates Vite entrypoint names.
+ */
 final class EntrypointNormalizer
 {
     /**
-     * @param list<mixed>|string $entrypoints
+     * Validates entrypoint values and reduces them to a deduplicated list of relative source paths.
      *
-     * @return list<string>
+     * Trims each value, strips its leading separator, and preserves insertion order while discarding repeats.
+     *
+     * @param list<mixed>|string $entrypoints Single entrypoint, or a list of entrypoints to normalize.
+     * @param bool $required Whether an empty result must be rejected instead of returned.
+     *
+     * @throws InvalidEntrypointException if an entrypoint is not a `string`, is empty, contains a backslash or a
+     * control character, or if the result is empty while `$required` is `true`.
+     *
+     * @return list<string> Deduplicated relative entrypoint paths in insertion order.
      */
     public static function normalize(array|string $entrypoints, bool $required): array
     {
         $entrypoints = is_array($entrypoints) ? $entrypoints : [$entrypoints];
+
         $normalized = [];
 
         foreach ($entrypoints as $entrypoint) {

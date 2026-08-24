@@ -7,7 +7,7 @@ namespace PHPForge\Vite\Tests;
 use PHPForge\Vite\Asset\{InlineModule, ModuleScript};
 use PHPForge\Vite\Configuration\DevelopmentConfiguration;
 use PHPForge\Vite\Exception\{InvalidEntrypointException, Message};
-use PHPForge\Vite\Tests\Fixtures\CapturingInlineModuleProviderStub;
+use PHPForge\Vite\Tests\Fixture\CapturingInlineModuleProviderStub;
 use PHPForge\Vite\Vite;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
