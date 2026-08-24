@@ -177,3 +177,11 @@ code and the matching Vite plugin dependency.
 
 [`php-forge/foxy`](https://github.com/php-forge/foxy) may be used independently by a consuming project to coordinate its
 Composer and JavaScript dependencies. It is not installed, invoked, or configured by this package.
+
+## Next steps
+
+- 📚 [Installation guide](installation.md)
+- ⚙️ [Configuration reference](configuration.md)
+- 📦 [Manifest resolution](manifest.md)
+- 🔒 [Security and CSP](security.md)
+- 🧪 [Testing guide](testing.md)

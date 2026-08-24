@@ -62,3 +62,11 @@ CSP header, response-specific nonce lifecycle, browser compatibility, and policy
 Development servers commonly require additional `connect-src` origins for HTTP and WebSocket HMR connections and may
 serve resources from a separate origin. Configure those directives only in the application's development policy; this
 package does not weaken CSP automatically.
+
+## Next steps
+
+- 📚 [Installation guide](installation.md)
+- ⚙️ [Configuration reference](configuration.md)
+- 📦 [Manifest resolution](manifest.md)
+- 💡 [Usage examples](examples.md)
+- 🧪 [Testing guide](testing.md)

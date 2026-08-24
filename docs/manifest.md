@@ -60,3 +60,11 @@ There are no silent development fallbacks in production mode.
 
 This package consumes Vite's client build manifest only. It does not consume the SSR manifest, transform HTML, implement
 experimental import maps, or decide how arbitrary copied assets should be presented.
+
+## Next steps
+
+- 📚 [Installation guide](installation.md)
+- ⚙️ [Configuration reference](configuration.md)
+- 💡 [Usage examples](examples.md)
+- 🔒 [Security and CSP](security.md)
+- 🧪 [Testing guide](testing.md)

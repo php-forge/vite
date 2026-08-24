@@ -141,3 +141,11 @@ ViteException
 
 Configuration and rendering exceptions extend `InvalidArgumentException`. Manifest exceptions extend `RuntimeException`.
 Callers can catch one specific failure, a category base class, or the common marker interface.
+
+## Next steps
+
+- 📚 [Installation guide](installation.md)
+- 📦 [Manifest resolution](manifest.md)
+- 💡 [Usage examples](examples.md)
+- 🔒 [Security and CSP](security.md)
+- 🧪 [Testing guide](testing.md)
