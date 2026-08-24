@@ -18,7 +18,6 @@ use stdClass;
 use function array_is_list;
 use function array_key_exists;
 use function clearstatcache;
-use function file_get_contents;
 use function is_array;
 use function is_bool;
 use function is_file;
@@ -27,7 +26,6 @@ use function is_string;
 use function json_decode;
 use function property_exists;
 use function sprintf;
-use function stat;
 
 use const JSON_THROW_ON_ERROR;
 

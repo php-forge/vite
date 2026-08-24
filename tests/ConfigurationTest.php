@@ -12,7 +12,6 @@ use PHPForge\Vite\Tests\Provider\ConfigurationProvider;
 use PHPForge\Vite\Vite;
 use PHPUnit\Framework\Attributes\{DataProviderExternal, Group};
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
 use stdClass;
 
 /**
@@ -93,9 +92,7 @@ final class ConfigurationTest extends TestCase
             Message::DEVELOPMENT_INLINE_MODULE_PROVIDER_INVALID->getMessage(),
         );
 
-        (new ReflectionClass(DevelopmentConfiguration::class))->newInstanceArgs(
-            ['http://localhost:5173', true, [new stdClass()]],
-        );
+        new DevelopmentConfiguration('http://localhost:5173', inlineModuleProviders: [new stdClass()]);
     }
 
     public function testThrowConfigurationExceptionForNonAbsoluteManifestPath(): void
@@ -160,8 +157,6 @@ final class ConfigurationTest extends TestCase
             Message::ENTRYPOINT_TYPE_INVALID->getMessage(),
         );
 
-        (new ReflectionClass(Vite::class))->newInstanceArgs(
-            [new DevelopmentConfiguration('http://localhost:5173'), [123]],
-        );
+        new Vite(new DevelopmentConfiguration('http://localhost:5173'), [123]);
     }
 }

@@ -1,7 +1,14 @@
 {
+    "_bundle-alias.js": {
+        "file": "assets/bundle.js"
+    },
+    "_vendor.js": {
+        "file": "assets/vendor.js"
+    },
     "resources/js/app.js": {
         "file": "assets/bundle.js",
-        "isEntry": true
+        "isEntry": true,
+        "imports": ["_bundle-alias.js", "_vendor.js"]
     },
     "resources/js/app-legacy.js": {
         "file": "assets/bundle.js",

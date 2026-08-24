@@ -167,8 +167,6 @@ final readonly class ManifestAssetResolver implements AssetResolverInterface
      * @param ManifestChunk $chunk Chunk whose imports are walked.
      * @param array<string, true> $seen Keys already visited, mutated in place to guard against cycles.
      *
-     * @throws InvalidManifestException if an import references a chunk the manifest does not declare.
-     *
      * @return list<ManifestChunk> Imported chunks, dependencies first.
      */
     private function importedChunks(Manifest $manifest, ManifestChunk $chunk, array &$seen): array
@@ -181,17 +179,9 @@ final readonly class ManifestAssetResolver implements AssetResolverInterface
             }
 
             $seen[$reference] = true;
-            $import = $manifest->get($reference);
 
-            if (!$import instanceof ManifestChunk) {
-                throw new InvalidManifestException(
-                    Message::MANIFEST_RESOLVER_REFERENCE_MISSING->getMessage(
-                        $chunk->key,
-                        $this->configuration->manifestPath,
-                        $reference,
-                    ),
-                );
-            }
+            /** @var ManifestChunk $import References are validated when the manifest is loaded. */
+            $import = $manifest->get($reference);
 
             $chunks = [...$chunks, ...$this->importedChunks($manifest, $import, $seen), $import];
         }

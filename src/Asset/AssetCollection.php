@@ -16,17 +16,18 @@ use function in_array;
 /**
  * Immutable, insertion-ordered collection of deduplicated neutral assets.
  *
- * @implements IteratorAggregate<int, AssetInterface>
+ * @implements IteratorAggregate<int, InlineModule|ModulePreload|ModuleScript|Stylesheet>
  */
 final readonly class AssetCollection implements Countable, IteratorAggregate
 {
     /**
-     * @var list<AssetInterface> Accepted assets in insertion order, with per-type duplicates removed.
+     * @var list<InlineModule|ModulePreload|ModuleScript|Stylesheet> Accepted assets in insertion order, with per-type
+     * duplicates removed.
      */
     private array $assets;
 
     /**
-     * @param iterable<AssetInterface> $assets Assets to collect.
+     * @param iterable<mixed> $assets Assets to validate and collect.
      *
      * @throws ConfigurationException if a value does not implement {@see AssetInterface}, or implements it without
      * being one of the four supported asset types.
@@ -57,7 +58,7 @@ final readonly class AssetCollection implements Countable, IteratorAggregate
     /**
      * Returns every collected asset in insertion order, regardless of type.
      *
-     * @return list<AssetInterface> The collected assets.
+     * @return list<InlineModule|ModulePreload|ModuleScript|Stylesheet> The collected assets.
      */
     public function all(): array
     {
@@ -93,7 +94,7 @@ final readonly class AssetCollection implements Countable, IteratorAggregate
     /**
      * Iterates over the collected assets in insertion order.
      *
-     * @return Traversable<int, AssetInterface> Iterator over the collected assets.
+     * @return Traversable<int, InlineModule|ModulePreload|ModuleScript|Stylesheet> Iterator over the collected assets.
      */
     public function getIterator(): Traversable
     {
@@ -198,7 +199,7 @@ final readonly class AssetCollection implements Countable, IteratorAggregate
      *
      * @return InlineModule|ModulePreload|ModuleScript|Stylesheet The narrowed asset.
      */
-    private function requireAsset(mixed $asset): AssetInterface
+    private function requireAsset(mixed $asset): InlineModule|ModulePreload|ModuleScript|Stylesheet
     {
         if (!$asset instanceof AssetInterface) {
             throw new ConfigurationException(

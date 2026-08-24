@@ -169,13 +169,6 @@ enum Message: string
     case HTML_ATTRIBUTE_VALUE_INVALID = 'The HTML attribute "%s" has an unsupported value.';
 
     /**
-     * An inline module cannot be rendered safely.
-     *
-     * Format: "Unable to render the inline module source."
-     */
-    case INLINE_MODULE_RENDER_FAILED = 'Unable to render the inline module source.';
-
-    /**
      * An inline module has no source.
      *
      * Format: "Inline module source must not be empty."
@@ -272,13 +265,6 @@ enum Message: string
      * Format: "The Vite manifest entry \"%s\" in \"%s\" references missing \"%s\" chunk \"%s\"."
      */
     case MANIFEST_REFERENCE_MISSING = 'The Vite manifest entry "%s" in "%s" references missing "%s" chunk "%s".';
-
-    /**
-     * A resolved manifest import is missing unexpectedly.
-     *
-     * Format: "The Vite manifest entry \"%s\" in \"%s\" references missing chunk \"%s\"."
-     */
-    case MANIFEST_RESOLVER_REFERENCE_MISSING = 'The Vite manifest entry "%s" in "%s" references missing chunk "%s".';
 
     /**
      * A manifest root is not a JSON object.

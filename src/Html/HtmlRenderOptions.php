@@ -18,19 +18,19 @@ use function preg_match;
 final readonly class HtmlRenderOptions
 {
     /**
-     * @var (Closure(AssetInterface): array<string, bool|float|int|string|null>)|null Per-asset attribute callback,
-     * or `null` when only the static per-type attributes apply.
+     * @var (Closure(AssetInterface): mixed)|null Per-asset attribute callback, or `null` when only the static per-type
+     * attributes apply.
      */
     private Closure|null $attributeProvider;
 
     /**
      * @param string|null $nonce CSP nonce applied to every generated tag, or `null` to emit none.
-     * @param array<string, bool|float|int|string|null> $moduleScriptAttributes Extra attributes for module scripts.
-     * @param array<string, bool|float|int|string|null> $stylesheetAttributes Extra attributes for stylesheets.
-     * @param array<string, bool|float|int|string|null> $modulePreloadAttributes Extra attributes for preload hints.
-     * @param array<string, bool|float|int|string|null> $inlineModuleAttributes Extra attributes for inline modules.
-     * @param (callable(AssetInterface): array<string, bool|float|int|string|null>)|null $attributeProvider Callback
-     * returning per-asset attributes that override the per-type ones, or `null` to apply none.
+     * @param array<array-key, mixed> $moduleScriptAttributes Extra attributes for module scripts.
+     * @param array<array-key, mixed> $stylesheetAttributes Extra attributes for stylesheets.
+     * @param array<array-key, mixed> $modulePreloadAttributes Extra attributes for preload hints.
+     * @param array<array-key, mixed> $inlineModuleAttributes Extra attributes for inline modules.
+     * @param (callable(AssetInterface): mixed)|null $attributeProvider Callback returning per-asset attributes that
+     * override the per-type ones, or `null` to apply none.
      * @param string $separator String inserted between two rendered tags.
      *
      * @throws HtmlRenderingException if the nonce is not a non-empty base64 or base64url value.
@@ -95,10 +95,9 @@ final readonly class HtmlRenderOptions
     /**
      * Invokes the attribute provider without narrowing its result.
      *
-     * The return type stays `mixed` so the caller can reject a provider that breaks its declared contract at
-     * runtime, which static analysis alone cannot guarantee.
+     * The return type stays `mixed` so the caller can validate the provider result at runtime.
      *
-     * @param Closure(AssetInterface): array<string, bool|float|int|string|null> $provider Configured callback.
+     * @param Closure(AssetInterface): mixed $provider Configured callback.
      * @param AssetInterface $asset Asset passed to the callback.
      *
      * @return mixed Whatever the provider returned.

@@ -26,8 +26,8 @@ final readonly class DevelopmentConfiguration
     /**
      * @param string $devServerUrl Absolute HTTP(S) URL of the running Vite development server.
      * @param bool $includeViteClient Whether the `@vite/client` module script is emitted.
-     * @param list<InlineModuleProviderInterface> $inlineModuleProviders Providers of application-owned inline
-     * modules that must run before the Vite client.
+     * @param list<mixed> $inlineModuleProviders Providers of application-owned inline modules to validate and emit
+     * before the Vite client.
      *
      * @throws ConfigurationException if the development-server URL is not an absolute HTTP(S) URL, or if a provider
      * does not implement {@see InlineModuleProviderInterface}.
