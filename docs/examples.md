@@ -34,10 +34,10 @@ use PHPForge\Vite\Html\HtmlRenderer;
 use PHPForge\Vite\Vite;
 
 $configuration = $isDevelopment
-    ? new DevelopmentConfiguration(
+    ? DevelopmentConfiguration::create(
         devServerUrl: 'http://localhost:5173',
     )
-    : new ProductionConfiguration(
+    : ProductionConfiguration::create(
         manifestPath: __DIR__ . '/public/build/.vite/manifest.json',
         assetBaseUrl: '/build',
     );
@@ -46,7 +46,7 @@ $vite = Vite::create($configuration, entrypoints: ['resources/js/app.js']);
 
 $assets = $vite->resolve();
 
-echo (new HtmlRenderer())->render($assets);
+echo HtmlRenderer::create()->render($assets);
 ```
 
 The production example assumes `__DIR__` is the absolute project root used by the matching Vite configuration.
@@ -90,10 +90,10 @@ $config = [
             'class' => Vite::class,
             '__construct()' => [
                 'configuration' => YII_ENV === 'dev'
-                    ? new DevelopmentConfiguration(
+                    ? DevelopmentConfiguration::create(
                         devServerUrl: 'http://localhost:5173',
                     )
-                    : new ProductionConfiguration(
+                    : ProductionConfiguration::create(
                         manifestPath: dirname(__DIR__) . '/public/build/.vite/manifest.json',
                         assetBaseUrl: '/build',
                     ),
@@ -106,7 +106,7 @@ $config = [
 /** @var Vite $vite */
 $vite = Yii::$app->get('vite');
 
-echo (new HtmlRenderer())->render($vite->resolve());
+echo HtmlRenderer::create()->render($vite->resolve());
 ```
 
 The `__construct()` entry is Yii2 container syntax. Its values are passed to the framework-independent constructor, and
@@ -123,7 +123,7 @@ use Yiisoft\Aliases\Aliases;
 
 static function (Aliases $aliases): Vite {
     return Vite::create(
-        new ProductionConfiguration(
+        ProductionConfiguration::create(
             manifestPath: $aliases->get('@public/build/.vite/manifest.json'),
             assetBaseUrl: '/build',
         ),
@@ -162,7 +162,7 @@ final class ReactRefreshPreamble implements InlineModuleProviderInterface
     }
 }
 
-$configuration = new DevelopmentConfiguration(
+$configuration = DevelopmentConfiguration::create(
     devServerUrl: 'http://localhost:5173',
     inlineModuleProviders: [new ReactRefreshPreamble()],
 );

@@ -65,13 +65,13 @@ use PHPForge\Vite\Html\HtmlRenderer;
 use PHPForge\Vite\Vite;
 
 $vite = Vite::create(
-    new DevelopmentConfiguration(
+    DevelopmentConfiguration::create(
         devServerUrl: 'http://localhost:5173',
     ),
     entrypoints: ['resources/js/app.js'],
 );
 
-echo (new HtmlRenderer())->render($vite->resolve());
+echo HtmlRenderer::create()->render($vite->resolve());
 ```
 
 ### Production
@@ -82,14 +82,14 @@ use PHPForge\Vite\Html\HtmlRenderer;
 use PHPForge\Vite\Vite;
 
 $vite = Vite::create(
-    new ProductionConfiguration(
+    ProductionConfiguration::create(
         manifestPath: '/srv/app/public/build/.vite/manifest.json',
         assetBaseUrl: '/build',
     ),
     entrypoints: ['resources/js/app.js'],
 );
 
-echo (new HtmlRenderer())->render($vite->resolve());
+echo HtmlRenderer::create()->render($vite->resolve());
 ```
 
 ## Documentation

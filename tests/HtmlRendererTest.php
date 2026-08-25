@@ -57,7 +57,7 @@ final class HtmlRendererTest extends TestCase
 
     public function testInlineModuleNeutralizesClosingScriptSequence(): void
     {
-        $html = (new HtmlRenderer())->render(
+        $html = HtmlRenderer::create()->render(
             new AssetCollection([new InlineModule('window.html = "</SCRIPT><p>";')]),
         );
 
@@ -83,7 +83,7 @@ final class HtmlRendererTest extends TestCase
                 new ModulePreload('/build/vendor.js'),
             ],
         );
-        $html = (new HtmlRenderer())->render(
+        $html = HtmlRenderer::create()->render(
             $assets,
             HtmlRenderOptions::create()->withNonce('c2VjdXJlLW5vbmNl'),
         );
@@ -336,7 +336,7 @@ final class HtmlRendererTest extends TestCase
             <script type="module" src="/app.js?x=1&amp;name=&quot;quoted&quot;&amp;tag=&lt;value&gt;" crossorigin="anonymous" defer data-kind="module&amp;script">
             </script>
             HTML,
-            (new HtmlRenderer())->render(new AssetCollection([$script]), $options),
+            HtmlRenderer::create()->render(new AssetCollection([$script]), $options),
             'URLs, values, booleans, and omitted attributes must be encoded safely.',
         );
     }
@@ -358,7 +358,7 @@ final class HtmlRendererTest extends TestCase
             </script>
             <link href="/build/vendor.js" rel="modulepreload">
             HTML,
-            (new HtmlRenderer())->render($assets),
+            HtmlRenderer::create()->render($assets),
             'Rendered tags must follow collection order.',
         );
     }
@@ -366,7 +366,7 @@ final class HtmlRendererTest extends TestCase
     public function testRendererSupportsCustomSeparator(): void
     {
         $assets = new AssetCollection([new ModuleScript('/one.js'), new ModuleScript('/two.js')]);
-        $html = (new HtmlRenderer())->render($assets, HtmlRenderOptions::create()->withSeparator(''));
+        $html = HtmlRenderer::create()->render($assets, HtmlRenderOptions::create()->withSeparator(''));
 
         self::assertSame(
             <<<HTML
@@ -418,7 +418,7 @@ final class HtmlRendererTest extends TestCase
 
         $options = HtmlRenderOptions::create()->withModuleScriptAttributes($attributes);
 
-        (new HtmlRenderer())->render(new AssetCollection([new ModuleScript('/app.js')]), $options);
+        HtmlRenderer::create()->render(new AssetCollection([new ModuleScript('/app.js')]), $options);
     }
 
     public function testThrowHtmlRenderingExceptionForUnsupportedAssetAttributes(): void

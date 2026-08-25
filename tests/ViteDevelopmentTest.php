@@ -21,8 +21,9 @@ final class ViteDevelopmentTest extends TestCase
     public function testDevelopmentAssetsUseDocumentedOrder(): void
     {
         $provider = new CapturingInlineModuleProviderStub();
-        $vite = new Vite(
-            new DevelopmentConfiguration(
+
+        $vite = Vite::create(
+            DevelopmentConfiguration::create(
                 devServerUrl: 'http://localhost:5173/',
                 inlineModuleProviders: [$provider],
             ),
@@ -85,8 +86,8 @@ final class ViteDevelopmentTest extends TestCase
 
     public function testDevelopmentCanOmitViteClient(): void
     {
-        $vite = new Vite(
-            new DevelopmentConfiguration(
+        $vite = Vite::create(
+            DevelopmentConfiguration::create(
                 devServerUrl: 'http://localhost:5173',
                 includeViteClient: false,
             ),
@@ -109,8 +110,8 @@ final class ViteDevelopmentTest extends TestCase
 
     public function testDevelopmentServerPathPrefixIsPreserved(): void
     {
-        $vite = new Vite(
-            new DevelopmentConfiguration(
+        $vite = Vite::create(
+            DevelopmentConfiguration::create(
                 devServerUrl: 'https://assets.example.com/vite/',
             ),
             entrypoints: ['resources/js/app.js'],
@@ -131,7 +132,7 @@ final class ViteDevelopmentTest extends TestCase
 
     public function testResolveAcceptsStringOverrideAndNormalizesLeadingSlash(): void
     {
-        $vite = new Vite(new DevelopmentConfiguration('http://localhost:5173'));
+        $vite = Vite::create(DevelopmentConfiguration::create('http://localhost:5173'));
 
         $scripts = $vite->resolve('/resources/js/app.js')->moduleScripts();
 
@@ -147,7 +148,7 @@ final class ViteDevelopmentTest extends TestCase
 
     public function testResolveDeduplicatesOverrideEntrypoints(): void
     {
-        $vite = new Vite(new DevelopmentConfiguration('http://localhost:5173'));
+        $vite = Vite::create(DevelopmentConfiguration::create('http://localhost:5173'));
 
         $scripts = $vite->resolve(['resources/js/app.js', '/resources/js/app.js'])->moduleScripts();
 
@@ -160,7 +161,7 @@ final class ViteDevelopmentTest extends TestCase
 
     public function testThrowInvalidEntrypointExceptionWhenNoEntrypointIsConfigured(): void
     {
-        $vite = new Vite(new DevelopmentConfiguration('http://localhost:5173'));
+        $vite = Vite::create(DevelopmentConfiguration::create('http://localhost:5173'));
 
         $this->expectException(InvalidEntrypointException::class);
         $this->expectExceptionMessage(

@@ -8,7 +8,7 @@ Configuration objects are immutable and accept only resolved filesystem paths an
 ```php
 use PHPForge\Vite\Configuration\DevelopmentConfiguration;
 
-$configuration = new DevelopmentConfiguration(
+$configuration = DevelopmentConfiguration::create(
     devServerUrl: 'http://localhost:5173',
     includeViteClient: true,
     inlineModuleProviders: [],
@@ -28,7 +28,7 @@ The URL may include a path prefix, but not a query or fragment.
 ```php
 use PHPForge\Vite\Configuration\ProductionConfiguration;
 
-$configuration = new ProductionConfiguration(
+$configuration = ProductionConfiguration::create(
     manifestPath: '/srv/app/public/build/.vite/manifest.json',
     assetBaseUrl: '/build',
     modulePreload: true,
@@ -98,7 +98,7 @@ Resolution does not produce HTML. Use `HtmlRenderer` only when the application w
 use PHPForge\Vite\Html\HtmlRenderer;
 use PHPForge\Vite\Html\HtmlRenderOptions;
 
-$html = (new HtmlRenderer())->render(
+$html = HtmlRenderer::create()->render(
     $vite->resolve(),
     HtmlRenderOptions::create()
         ->withNonce($nonce)
