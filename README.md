@@ -18,8 +18,8 @@
     <a href="https://github.com/php-forge/vite/actions/workflows/ecs.yml" target="_blank">
         <img src="https://img.shields.io/github/actions/workflow/status/php-forge/vite/ecs.yml?style=for-the-badge&label=ECS&logo=github" alt="Easy Coding Standard">
     </a>
-    <a href="https://github.com/php-forge/vite/actions/workflows/dependency-check.yml" target="_blank">
-        <img src="https://img.shields.io/github/actions/workflow/status/php-forge/vite/dependency-check.yml?style=for-the-badge&label=Dependency%20Check&logo=github" alt="Dependency Check">
+    <a href="https://github.com/php-forge/vite/actions/workflows/security.yml" target="_blank">
+        <img src="https://img.shields.io/github/actions/workflow/status/php-forge/vite/security.yml?style=for-the-badge&label=Security&logo=github" alt="Security">
     </a>
 </p>
 

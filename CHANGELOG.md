@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 0.1.1 Under development
 
 - docs: add `Next steps` section with links to installation, usage, configuration, and testing guides.
+- docs: update badge in `README.md` to reflect security checks.
 
 ## 0.1.0 August 24, 2026
 
