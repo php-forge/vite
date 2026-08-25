@@ -76,7 +76,7 @@ final readonly class AssetCollection implements Countable, IteratorAggregate
      *
      * @return AssetCollection A new collection holding both sequences.
      */
-    public function append(AssetInterface ...$assets): AssetCollection
+    public function append(AssetInterface ...$assets): self
     {
         return new self([...$this->assets, ...$assets]);
     }
@@ -166,7 +166,7 @@ final readonly class AssetCollection implements Countable, IteratorAggregate
      *
      * @return AssetCollection A new collection holding both sequences.
      */
-    public function prepend(AssetInterface ...$assets): AssetCollection
+    public function prepend(AssetInterface ...$assets): self
     {
         return new self([...$assets, ...$this->assets]);
     }
