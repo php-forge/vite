@@ -82,7 +82,7 @@ final class HtmlRenderer
     private function attributesFor(AssetInterface $asset, HtmlRenderOptions $options): array
     {
         $attributes = [];
-        
+
         $nonce = $options->nonce();
 
         if ($nonce !== null) {
