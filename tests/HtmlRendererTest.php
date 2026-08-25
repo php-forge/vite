@@ -13,13 +13,48 @@ use PHPUnit\Framework\Attributes\{DataProviderExternal, Group};
 use PHPUnit\Framework\TestCase;
 
 /**
- * Unit tests for {@see HtmlRenderer} output ordering, escaping, attributes, and CSP nonce support.
+ * Unit tests for {@see HtmlRenderOptions} policies and {@see HtmlRenderer} output.
  *
  * {@see HtmlRendererProvider} for test case data providers.
  */
 #[Group('html')]
 final class HtmlRendererTest extends TestCase
 {
+    public function testFactoryCreatesDefaultOptions(): void
+    {
+        $options = HtmlRenderOptions::create();
+
+        self::assertNull(
+            $options->nonce(),
+            'The default policy must not emit a nonce.',
+        );
+        self::assertSame(
+            [],
+            $options->moduleScriptAttributes(),
+            'Module scripts must have no custom attributes by default.',
+        );
+        self::assertSame(
+            [],
+            $options->stylesheetAttributes(),
+            'Stylesheets must have no custom attributes by default.',
+        );
+        self::assertSame(
+            [],
+            $options->modulePreloadAttributes(),
+            'Module-preload hints must have no custom attributes by default.',
+        );
+        self::assertSame(
+            [],
+            $options->inlineModuleAttributes(),
+            'Inline modules must have no custom attributes by default.',
+        );
+        self::assertSame(
+            "\n",
+            $options->separator(),
+            'Rendered tags must be separated by a newline by default.',
+        );
+    }
+
     public function testInlineModuleNeutralizesClosingScriptSequence(): void
     {
         $html = (new HtmlRenderer())->render(
@@ -50,7 +85,7 @@ final class HtmlRendererTest extends TestCase
         );
         $html = (new HtmlRenderer())->render(
             $assets,
-            new HtmlRenderOptions(nonce: 'c2VjdXJlLW5vbmNl'),
+            HtmlRenderOptions::create()->withNonce('c2VjdXJlLW5vbmNl'),
         );
 
         self::assertSame(
@@ -60,14 +95,213 @@ final class HtmlRendererTest extends TestCase
         );
     }
 
+    public function testOptionsModifiersCanResetConfiguredValues(): void
+    {
+        $configured = HtmlRenderOptions::create()
+            ->withNonce('c2VjdXJlLW5vbmNl')
+            ->withModuleScriptAttributes(['defer' => true])
+            ->withStylesheetAttributes(['media' => 'screen'])
+            ->withModulePreloadAttributes(['crossorigin' => 'anonymous'])
+            ->withInlineModuleAttributes(['data-inline' => true])
+            ->withAttributeProvider(static fn(): array => ['data-provider' => true])
+            ->withSeparator('');
+
+        $reset = $configured
+            ->withNonce(null)
+            ->withModuleScriptAttributes([])
+            ->withStylesheetAttributes([])
+            ->withModulePreloadAttributes([])
+            ->withInlineModuleAttributes([])
+            ->withAttributeProvider(null)
+            ->withSeparator("\n");
+
+        self::assertNull(
+            $reset->nonce(),
+            'A `null` nonce must clear the configured nonce.',
+        );
+        self::assertSame(
+            [],
+            $reset->moduleScriptAttributes(),
+            'An empty array must clear module-script attributes.',
+        );
+        self::assertSame(
+            [],
+            $reset->stylesheetAttributes(),
+            'An empty array must clear stylesheet attributes.',
+        );
+        self::assertSame(
+            [],
+            $reset->modulePreloadAttributes(),
+            'An empty array must clear module-preload attributes.',
+        );
+        self::assertSame(
+            [],
+            $reset->inlineModuleAttributes(),
+            'An empty array must clear inline-module attributes.',
+        );
+        self::assertSame(
+            [],
+            $reset->attributesFor(new ModuleScript('/app.js')),
+            'A `null` provider must clear the configured attribute provider.',
+        );
+        self::assertSame(
+            "\n",
+            $reset->separator(),
+            'The separator must be replaceable with its default value.',
+        );
+
+        self::assertSame(
+            'c2VjdXJlLW5vbmNl',
+            $configured->nonce(),
+            'Resetting a derived policy must not clear the source nonce.',
+        );
+        self::assertSame(
+            [
+                'defer' => true,
+                'data-provider' => true,
+            ],
+            $configured->attributesFor(new ModuleScript('/app.js')),
+            'Resetting a derived policy must not clear the source attributes or provider.',
+        );
+        self::assertSame(
+            '',
+            $configured->separator(),
+            'Resetting a derived policy must not change the source separator.',
+        );
+    }
+
+    public function testOptionsModifiersReturnNewConfiguredInstances(): void
+    {
+        $options = HtmlRenderOptions::create();
+
+        $attributeProvider = static fn(AssetInterface $asset): array => [
+            'data-asset' => $asset::class,
+        ];
+
+        $withAttributeProvider = $options->withAttributeProvider($attributeProvider);
+        $withInlineModuleAttributes = $options->withInlineModuleAttributes(['data-inline' => true]);
+        $withModulePreloadAttributes = $options->withModulePreloadAttributes(['crossorigin' => 'anonymous']);
+        $withModuleScriptAttributes = $options->withModuleScriptAttributes(['defer' => true]);
+        $withNonce = $options->withNonce('c2VjdXJlLW5vbmNl');
+        $withSeparator = $options->withSeparator('');
+        $withStylesheetAttributes = $options->withStylesheetAttributes(['media' => 'screen']);
+
+        self::assertNotSame(
+            $options,
+            $withAttributeProvider,
+            'Configuring an attribute provider must return a new policy.',
+        );
+        self::assertSame(
+            ['data-asset' => ModuleScript::class],
+            $withAttributeProvider->attributesFor(new ModuleScript('/app.js')),
+            'The configured attribute provider must receive the asset.',
+        );
+        self::assertNotSame(
+            $options,
+            $withInlineModuleAttributes,
+            'Configuring inline-module attributes must return a new policy.',
+        );
+        self::assertSame(
+            ['data-inline' => true],
+            $withInlineModuleAttributes->inlineModuleAttributes(),
+            'The configured inline-module attributes must be retained.',
+        );
+        self::assertSame(
+            ['data-inline' => true],
+            $withInlineModuleAttributes->attributesFor(new InlineModule('window.ready = true;')),
+            'The configured inline-module attributes must be selected for inline modules.',
+        );
+        self::assertNotSame(
+            $options,
+            $withModulePreloadAttributes,
+            'Configuring module-preload attributes must return a new policy.',
+        );
+        self::assertSame(
+            ['crossorigin' => 'anonymous'],
+            $withModulePreloadAttributes->modulePreloadAttributes(),
+            'The configured module-preload attributes must be retained.',
+        );
+        self::assertSame(
+            ['crossorigin' => 'anonymous'],
+            $withModulePreloadAttributes->attributesFor(new ModulePreload('/vendor.js')),
+            'The configured module-preload attributes must be selected for preload hints.',
+        );
+        self::assertNotSame(
+            $options,
+            $withModuleScriptAttributes,
+            'Configuring module-script attributes must return a new policy.',
+        );
+        self::assertSame(
+            ['defer' => true],
+            $withModuleScriptAttributes->moduleScriptAttributes(),
+            'The configured module-script attributes must be retained.',
+        );
+        self::assertSame(
+            ['defer' => true],
+            $withModuleScriptAttributes->attributesFor(new ModuleScript('/app.js')),
+            'The configured module-script attributes must be selected for module scripts.',
+        );
+        self::assertNotSame(
+            $options,
+            $withNonce,
+            'Configuring a nonce must return a new policy.',
+        );
+        self::assertSame(
+            'c2VjdXJlLW5vbmNl',
+            $withNonce->nonce(),
+            'The configured nonce must be retained.',
+        );
+        self::assertNotSame(
+            $options,
+            $withSeparator,
+            'Configuring a separator must return a new policy.',
+        );
+        self::assertSame(
+            '',
+            $withSeparator->separator(),
+            'The configured separator must be retained.',
+        );
+        self::assertNotSame(
+            $options,
+            $withStylesheetAttributes,
+            'Configuring stylesheet attributes must return a new policy.',
+        );
+        self::assertSame(
+            ['media' => 'screen'],
+            $withStylesheetAttributes->stylesheetAttributes(),
+            'The configured stylesheet attributes must be retained.',
+        );
+        self::assertSame(
+            ['media' => 'screen'],
+            $withStylesheetAttributes->attributesFor(new Stylesheet('/app.css')),
+            'The configured stylesheet attributes must be selected for stylesheets.',
+        );
+
+        self::assertNull(
+            $options->nonce(),
+            'Configuring derived policies must not change the original nonce.',
+        );
+        self::assertSame(
+            [],
+            $options->attributesFor(new ModuleScript('/app.js')),
+            'Configuring derived policies must not change the original attributes.',
+        );
+        self::assertSame(
+            "\n",
+            $options->separator(),
+            'Configuring a derived policy must not change the original separator.',
+        );
+    }
+
     public function testOptionsRetainConfiguredAttributesWithoutProvider(): void
     {
-        $options = new HtmlRenderOptions(
-            moduleScriptAttributes: [
-                'crossorigin' => 'anonymous',
-                'defer' => true,
-            ],
-        );
+        $options = HtmlRenderOptions::create()
+            ->withModuleScriptAttributes(
+                [
+                    'crossorigin' => 'anonymous',
+                    'defer' => true,
+                ],
+            );
 
         self::assertSame(
             [
@@ -82,17 +316,20 @@ final class HtmlRendererTest extends TestCase
     public function testRendererEscapesUrlsAndCustomAttributes(): void
     {
         $script = new ModuleScript('/app.js?x=1&name="quoted"&tag=<value>');
-        $options = new HtmlRenderOptions(
-            moduleScriptAttributes: [
-                'crossorigin' => 'anonymous',
-                'defer' => true,
-                'data-disabled' => false,
-                'data-empty' => null,
-            ],
-            attributeProvider: static fn(AssetInterface $asset): array => [
-                'data-kind' => $asset instanceof ModuleScript ? 'module&script' : 'asset',
-            ],
-        );
+        $options = HtmlRenderOptions::create()
+            ->withModuleScriptAttributes(
+                [
+                    'crossorigin' => 'anonymous',
+                    'defer' => true,
+                    'data-disabled' => false,
+                    'data-empty' => null,
+                ],
+            )
+            ->withAttributeProvider(
+                static fn(AssetInterface $asset): array => [
+                    'data-kind' => $asset instanceof ModuleScript ? 'module&script' : 'asset',
+                ],
+            );
 
         self::assertSame(
             <<<HTML
@@ -129,7 +366,7 @@ final class HtmlRendererTest extends TestCase
     public function testRendererSupportsCustomSeparator(): void
     {
         $assets = new AssetCollection([new ModuleScript('/one.js'), new ModuleScript('/two.js')]);
-        $html = (new HtmlRenderer())->render($assets, new HtmlRenderOptions(separator: ''));
+        $html = (new HtmlRenderer())->render($assets, HtmlRenderOptions::create()->withSeparator(''));
 
         self::assertSame(
             <<<HTML
@@ -149,7 +386,7 @@ final class HtmlRendererTest extends TestCase
             Message::HTML_ATTRIBUTE_PROVIDER_RESULT_INVALID->getMessage(),
         );
 
-        $options = new HtmlRenderOptions(attributeProvider: static fn(): string => 'invalid');
+        $options = HtmlRenderOptions::create()->withAttributeProvider(static fn(): string => 'invalid');
 
         $options->attributesFor(new ModuleScript('/app.js'));
     }
@@ -161,7 +398,7 @@ final class HtmlRendererTest extends TestCase
             Message::CSP_NONCE_INVALID->getMessage(),
         );
 
-        new HtmlRenderOptions(nonce: 'invalid nonce');
+        HtmlRenderOptions::create()->withNonce('invalid nonce');
     }
 
     /**
@@ -179,7 +416,7 @@ final class HtmlRendererTest extends TestCase
             $message->getMessage(...$arguments),
         );
 
-        $options = new HtmlRenderOptions(moduleScriptAttributes: $attributes);
+        $options = HtmlRenderOptions::create()->withModuleScriptAttributes($attributes);
 
         (new HtmlRenderer())->render(new AssetCollection([new ModuleScript('/app.js')]), $options);
     }
@@ -191,6 +428,6 @@ final class HtmlRendererTest extends TestCase
             Message::ASSET_IMPLEMENTATION_UNSUPPORTED->getMessage(),
         );
 
-        (new HtmlRenderOptions())->attributesFor(new UnsupportedAssetStub());
+        HtmlRenderOptions::create()->attributesFor(new UnsupportedAssetStub());
     }
 }

@@ -48,7 +48,9 @@ final class ManifestLoaderTest extends TestCase
         $secondPath = $this->temporaryManifest(
             '{"second.js":{"file":"assets/second.js","isEntry":true}}',
         );
+
         $loader = new ManifestLoader();
+
         $firstManifest = $loader->load($firstPath);
         $secondManifest = $loader->load($secondPath);
 
@@ -127,6 +129,7 @@ final class ManifestLoaderTest extends TestCase
         $manifest = (new ManifestLoader())->load(__DIR__ . '/Fixture/manifest.json');
 
         $entry = $manifest->get('views/bar.js');
+        $dynamic = $manifest->get('baz.js');
         $shared = $manifest->get('_shared-B7PI925R.js');
 
         self::assertSame(
@@ -152,20 +155,39 @@ final class ManifestLoaderTest extends TestCase
         );
         self::assertSame(
             'views/bar.js',
-            $entry->src,
+            $entry->src(),
             'The source path must be parsed.',
         );
-        self::assertTrue($entry->isEntry, 'The entry flag must be `true`.');
-        self::assertFalse($entry->isDynamicEntry, 'The dynamic entry flag must default to `false`.');
+        self::assertSame(
+            'bar',
+            $entry->name(),
+            'The chunk name must be parsed.',
+        );
+        self::assertTrue(
+            $entry->isEntry(),
+            "The entry flag must be 'true'.",
+        );
+        self::assertFalse(
+            $entry->isDynamicEntry(),
+            "The dynamic entry flag must default to 'false'.",
+        );
         self::assertSame(
             ['_shared-B7PI925R.js'],
-            $entry->imports,
+            $entry->imports(),
             'Static imports must be parsed.',
         );
         self::assertSame(
             ['baz.js'],
-            $entry->dynamicImports,
+            $entry->dynamicImports(),
             'Dynamic imports must be parsed.',
+        );
+        self::assertNotNull(
+            $dynamic,
+            'The dynamic entry chunk must be present.',
+        );
+        self::assertTrue(
+            $dynamic->isDynamicEntry(),
+            'The dynamic entry flag must be parsed.',
         );
         self::assertNotNull(
             $shared,
@@ -173,12 +195,12 @@ final class ManifestLoaderTest extends TestCase
         );
         self::assertSame(
             ['assets/shared-ChJ_j-JJ.css'],
-            $shared->css,
+            $shared->css(),
             'CSS assets must be parsed.',
         );
         self::assertSame(
             ['assets/logo-BuPIv-2h.svg'],
-            $shared->assets,
+            $shared->assets(),
             'Static assets must be parsed.',
         );
     }

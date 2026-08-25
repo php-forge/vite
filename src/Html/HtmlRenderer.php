@@ -54,7 +54,7 @@ final class HtmlRenderer
      */
     public function render(AssetCollection $assets, HtmlRenderOptions|null $options = null): string
     {
-        $options ??= new HtmlRenderOptions();
+        $options ??= HtmlRenderOptions::create();
 
         $tags = [];
 
@@ -62,7 +62,7 @@ final class HtmlRenderer
             $tags[] = $this->renderAsset($asset, $options);
         }
 
-        return implode($options->separator, $tags);
+        return implode($options->separator(), $tags);
     }
 
     /**
@@ -83,8 +83,10 @@ final class HtmlRenderer
     {
         $attributes = [];
 
-        if ($options->nonce !== null) {
-            $attributes['nonce'] = $options->nonce;
+        $nonce = $options->nonce();
+
+        if ($nonce !== null) {
+            $attributes['nonce'] = $nonce;
         }
 
         $seen = [];
