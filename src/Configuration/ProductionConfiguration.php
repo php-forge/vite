@@ -35,4 +35,23 @@ final readonly class ProductionConfiguration
         $this->manifestPath = Path::requireAbsolute($manifestPath, 'manifestPath');
         $this->assetBaseUrl = Url::normalizeAssetBaseUrl($assetBaseUrl);
     }
+
+    /**
+     * Creates a production-manifest configuration.
+     *
+     * @param string $manifestPath Absolute path to the manifest emitted by the Vite build.
+     * @param string $assetBaseUrl Public base URL of the build output, absolute or relative.
+     * @param bool $modulePreload Whether `modulepreload` hints are emitted for transitive imports.
+     *
+     * @throws ConfigurationException if the manifest path or base URL is invalid.
+     *
+     * @return self A new production-manifest configuration.
+     */
+    public static function create(
+        string $manifestPath,
+        string $assetBaseUrl,
+        bool $modulePreload = true,
+    ): self {
+        return new self($manifestPath, $assetBaseUrl, $modulePreload);
+    }
 }

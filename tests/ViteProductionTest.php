@@ -20,12 +20,14 @@ final class ViteProductionTest extends TestCase
 {
     public function testAbsoluteBaseUrlProducesCdnAssetUrls(): void
     {
-        $configuration = new ProductionConfiguration(
+        $configuration = ProductionConfiguration::create(
             manifestPath: __DIR__ . '/Fixture/css-entrypoint-manifest.json',
             assetBaseUrl: 'https://cdn.example.com/build/',
         );
 
-        $stylesheets = (new Vite($configuration, ['resources/css/app.css']))->resolve()->stylesheets();
+        $stylesheets = Vite::create($configuration, ['resources/css/app.css'])
+            ->resolve()
+            ->stylesheets();
 
         self::assertSame(
             ['https://cdn.example.com/build/assets/app-abc123.css'],
@@ -52,10 +54,13 @@ final class ViteProductionTest extends TestCase
     public function testClearManifestCacheDiscardsTheProductionManifest(): void
     {
         $manifestPath = __DIR__ . '/Fixture/manifest.json';
+
         $loader = new ManifestLoader();
+
         $cachedManifest = $loader->load($manifestPath);
-        $vite = new Vite(
-            new ProductionConfiguration($manifestPath, '/build'),
+
+        $vite = Vite::create(
+            ProductionConfiguration::create($manifestPath, '/build'),
             ['views/foo.js'],
             $loader,
         );
@@ -93,12 +98,14 @@ final class ViteProductionTest extends TestCase
 
     public function testEmptyBaseUrlProducesRelativeAssetUrls(): void
     {
-        $configuration = new ProductionConfiguration(
+        $configuration = ProductionConfiguration::create(
             manifestPath: __DIR__ . '/Fixture/css-entrypoint-manifest.json',
             assetBaseUrl: '',
         );
 
-        $stylesheets = (new Vite($configuration, ['resources/css/app.css']))->resolve()->stylesheets();
+        $stylesheets = Vite::create($configuration, ['resources/css/app.css'])
+            ->resolve()
+            ->stylesheets();
 
         self::assertSame(
             ['assets/app-abc123.css'],
@@ -171,13 +178,14 @@ final class ViteProductionTest extends TestCase
 
     public function testModulePreloadCanBeDisabled(): void
     {
-        $configuration = new ProductionConfiguration(
+        $configuration = ProductionConfiguration::create(
             manifestPath: __DIR__ . '/Fixture/manifest.json',
             assetBaseUrl: '/build',
             modulePreload: false,
         );
 
-        $assets = (new Vite($configuration, ['views/foo.js']))->resolve();
+        $assets = Vite::create($configuration, ['views/foo.js'])
+            ->resolve();
 
         self::assertSame(
             [],
@@ -244,11 +252,13 @@ final class ViteProductionTest extends TestCase
 
     public function testRootBaseUrlProducesRootRelativeAssetUrls(): void
     {
-        $configuration = new ProductionConfiguration(
+        $configuration = ProductionConfiguration::create(
             manifestPath: __DIR__ . '/Fixture/css-entrypoint-manifest.json',
             assetBaseUrl: '/',
         );
-        $stylesheets = (new Vite($configuration, ['resources/css/app.css']))->resolve()->stylesheets();
+        $stylesheets = Vite::create($configuration, ['resources/css/app.css'])
+            ->resolve()
+            ->stylesheets();
 
         self::assertSame(
             ['/assets/app-abc123.css'],
@@ -317,8 +327,8 @@ final class ViteProductionTest extends TestCase
      */
     private function vite(string $fixture, array $entrypoints): Vite
     {
-        return new Vite(
-            new ProductionConfiguration(
+        return Vite::create(
+            ProductionConfiguration::create(
                 manifestPath: __DIR__ . '/Fixture/' . $fixture,
                 assetBaseUrl: '/build',
             ),

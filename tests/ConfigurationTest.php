@@ -32,6 +32,48 @@ final class ConfigurationTest extends TestCase
         );
     }
 
+    public function testConfigurationFactoriesCreateConfiguredInstances(): void
+    {
+        $manifestPath = __DIR__ . '/Fixture/manifest.json';
+
+        $provider = new CapturingInlineModuleProviderStub();
+
+        $development = DevelopmentConfiguration::create(
+            'http://localhost:5173',
+            false,
+            [$provider],
+        );
+        $production = ProductionConfiguration::create(
+            $manifestPath,
+            '/build',
+            false,
+        );
+
+        self::assertSame(
+            'http://localhost:5173',
+            $development->devServerUrl,
+            'The development factory must preserve the normalized server URL.',
+        );
+        self::assertFalse(
+            $development->includeViteClient,
+            'The development factory must preserve the client setting.',
+        );
+        self::assertSame(
+            [$provider],
+            $development->inlineModuleProviders,
+            'The development factory must preserve inline module providers.',
+        );
+        self::assertSame(
+            $manifestPath,
+            $production->manifestPath,
+            'The production factory must preserve the manifest path.',
+        );
+        self::assertFalse(
+            $production->modulePreload,
+            'The production factory must preserve the preload setting.',
+        );
+    }
+
     public function testCreateReturnsConfiguredViteFacade(): void
     {
         $manifestPath = __DIR__ . '/Fixture/manifest.json';
@@ -41,7 +83,7 @@ final class ConfigurationTest extends TestCase
         $cachedManifest = $loader->load($manifestPath);
 
         $vite = Vite::create(
-            new ProductionConfiguration($manifestPath, '/build'),
+            ProductionConfiguration::create($manifestPath, '/build'),
             ['views/foo.js'],
             $loader,
         );
@@ -64,11 +106,22 @@ final class ConfigurationTest extends TestCase
         );
     }
 
+    public function testDevelopmentConfigurationEnablesViteClientByDefault(): void
+    {
+        $configuration = new DevelopmentConfiguration('http://localhost:5173');
+
+        self::assertTrue(
+            $configuration->includeViteClient,
+            'The development configuration must enable the Vite client by default.',
+        );
+    }
+
     public function testDevelopmentConfigurationNormalizesValues(): void
     {
         $firstProvider = new CapturingInlineModuleProviderStub();
         $secondProvider = new CapturingInlineModuleProviderStub();
-        $configuration = new DevelopmentConfiguration(
+
+        $configuration = DevelopmentConfiguration::create(
             devServerUrl: ' HTTPS://localhost:5173/vite/ ',
             inlineModuleProviders: [$firstProvider, $secondProvider],
         );
@@ -89,9 +142,19 @@ final class ConfigurationTest extends TestCase
         );
     }
 
+    public function testProductionConfigurationEnablesModulePreloadByDefault(): void
+    {
+        $configuration = new ProductionConfiguration(__DIR__ . '/Fixture/manifest.json', '/build');
+
+        self::assertTrue(
+            $configuration->modulePreload,
+            'The production configuration must enable module preloading by default.',
+        );
+    }
+
     public function testProductionConfigurationNormalizesBaseUrl(): void
     {
-        $configuration = new ProductionConfiguration(
+        $configuration = ProductionConfiguration::create(
             manifestPath: __DIR__ . '/Fixture/manifest.json',
             assetBaseUrl: ' HTTPS://cdn.example.com/build/ ',
         );
@@ -115,7 +178,7 @@ final class ConfigurationTest extends TestCase
             $message->getMessage(),
         );
 
-        new DevelopmentConfiguration($url);
+        DevelopmentConfiguration::create($url);
     }
 
     public function testThrowConfigurationExceptionForInvalidInlineModuleProvider(): void
@@ -125,7 +188,7 @@ final class ConfigurationTest extends TestCase
             Message::DEVELOPMENT_INLINE_MODULE_PROVIDER_INVALID->getMessage(),
         );
 
-        new DevelopmentConfiguration('http://localhost:5173', inlineModuleProviders: [new stdClass()]);
+        DevelopmentConfiguration::create('http://localhost:5173', inlineModuleProviders: [new stdClass()]);
     }
 
     public function testThrowConfigurationExceptionForNonAbsoluteManifestPath(): void
@@ -135,7 +198,7 @@ final class ConfigurationTest extends TestCase
             Message::FILESYSTEM_PATH_INVALID->getMessage('manifestPath'),
         );
 
-        new ProductionConfiguration('@webroot/build/.vite/manifest.json', '/build');
+        ProductionConfiguration::create('@webroot/build/.vite/manifest.json', '/build');
     }
 
     #[DataProviderExternal(ConfigurationProvider::class, 'unsafeAssetUrls')]
@@ -157,7 +220,7 @@ final class ConfigurationTest extends TestCase
             $message->getMessage(),
         );
 
-        new ProductionConfiguration(__DIR__ . '/Fixture/manifest.json', $url);
+        ProductionConfiguration::create(__DIR__ . '/Fixture/manifest.json', $url);
     }
 
     public function testThrowConfigurationExceptionForWhitespaceInlineModuleSource(): void
@@ -180,7 +243,7 @@ final class ConfigurationTest extends TestCase
             $message->getMessage(),
         );
 
-        new Vite(new DevelopmentConfiguration('http://localhost:5173'), [$entrypoint]);
+        Vite::create(DevelopmentConfiguration::create('http://localhost:5173'), [$entrypoint]);
     }
 
     public function testThrowInvalidEntrypointExceptionForNonStringEntrypoint(): void
@@ -190,6 +253,6 @@ final class ConfigurationTest extends TestCase
             Message::ENTRYPOINT_TYPE_INVALID->getMessage(),
         );
 
-        new Vite(new DevelopmentConfiguration('http://localhost:5173'), [123]);
+        Vite::create(DevelopmentConfiguration::create('http://localhost:5173'), [123]);
     }
 }

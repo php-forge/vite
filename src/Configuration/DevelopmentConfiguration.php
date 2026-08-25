@@ -43,6 +43,25 @@ final readonly class DevelopmentConfiguration
     }
 
     /**
+     * Creates a development-server configuration.
+     *
+     * @param string $devServerUrl Absolute HTTP(S) URL of the running Vite development server.
+     * @param bool $includeViteClient Whether the `@vite/client` module script is emitted.
+     * @param list<mixed> $inlineModuleProviders Providers of application-owned inline modules.
+     *
+     * @throws ConfigurationException if the development-server URL is invalid, or if a provider is unsupported.
+     *
+     * @return self A new development-server configuration.
+     */
+    public static function create(
+        string $devServerUrl,
+        bool $includeViteClient = true,
+        array $inlineModuleProviders = [],
+    ): self {
+        return new self($devServerUrl, $includeViteClient, $inlineModuleProviders);
+    }
+
+    /**
      * Rejects any provider that does not satisfy the contract, and reindexes the survivors as a list.
      *
      * @param iterable<mixed> $providers Raw providers supplied by the application.

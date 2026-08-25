@@ -51,7 +51,7 @@ $nonce = base64_encode(random_bytes(18));
 
 header("Content-Security-Policy: script-src 'nonce-{$nonce}' 'strict-dynamic'; object-src 'none'; base-uri 'none'");
 
-$html = (new HtmlRenderer())->render(
+$html = HtmlRenderer::create()->render(
     $vite->resolve(),
     HtmlRenderOptions::create()->withNonce($nonce),
 );

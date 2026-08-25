@@ -38,6 +38,16 @@ final class HtmlRenderer
     ];
 
     /**
+     * Creates an HTML renderer.
+     *
+     * @return self A new HTML renderer.
+     */
+    public static function create(): self
+    {
+        return new self();
+    }
+
+    /**
      * Renders a collection of neutral assets as HTML5 tags joined by the configured separator.
      *
      * Assets are rendered in collection order, each one mapped to the tag its type implies. The UI Awesome tag
