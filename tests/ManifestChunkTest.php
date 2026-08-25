@@ -135,15 +135,15 @@ final class ManifestChunkTest extends TestCase
         self::assertSame(
             'resources/app.js',
             $configured->src(),
-            "Resetting must not mutate the configured source path.",
+            'Resetting must not mutate the configured source path.',
         );
         self::assertTrue(
             $configured->isEntry(),
-            "Resetting must not mutate the configured entrypoint flag.",
+            'Resetting must not mutate the configured entrypoint flag.',
         );
         self::assertTrue(
             $configured->isDynamicEntry(),
-            "Resetting must not mutate the configured dynamic entrypoint flag.",
+            'Resetting must not mutate the configured dynamic entrypoint flag.',
         );
     }
 

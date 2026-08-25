@@ -124,7 +124,6 @@ final class ViteProductionTest extends TestCase
         );
     }
 
-
     public function testImportedCssChunkIsRenderedAndNotPreloaded(): void
     {
         $assets = $this->vite('css-chunk-import-manifest.json', ['resources/js/app.js'])->resolve();

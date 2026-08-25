@@ -196,7 +196,7 @@ final readonly class ManifestAssetResolver implements AssetResolverInterface
      * @param array<string, ModuleScript> $scripts Module scripts keyed by asset URL.
      * @param array<string, ModulePreload> $preloads Module-preload hints keyed by asset URL.
      *
-     * @return iterable<Stylesheet|ModuleScript|ModulePreload> Generator yielding stylesheets, then scripts, then
+     * @return iterable<ModulePreload|ModuleScript|Stylesheet> Generator yielding stylesheets, then scripts, then
      * preloads.
      */
     private function orderedAssets(array $stylesheets, array $scripts, array $preloads): iterable
