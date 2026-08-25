@@ -5,10 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.1.1 Under development
+## 0.2.0 Under development
 
 - docs: add `Next steps` section with links to installation, usage, configuration, and testing guides.
-- docs: update badge in `README.md` to reflect security checks.
+- feat!: add `Vite::create()` and replace high-arity render-option and manifest-chunk construction with fluent immutable APIs.
 
 ## 0.1.0 August 24, 2026
 

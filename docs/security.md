@@ -19,13 +19,14 @@ use PHPForge\Vite\Asset\AssetInterface;
 use PHPForge\Vite\Asset\ModuleScript;
 use PHPForge\Vite\Html\HtmlRenderOptions;
 
-$options = new HtmlRenderOptions(
-    moduleScriptAttributes: ['crossorigin' => true],
-    stylesheetAttributes: ['media' => 'screen'],
-    attributeProvider: static fn(AssetInterface $asset): array => $asset instanceof ModuleScript
-        ? ['data-entry' => 'application']
-        : [],
-);
+$options = HtmlRenderOptions::create()
+    ->withModuleScriptAttributes(['crossorigin' => true])
+    ->withStylesheetAttributes(['media' => 'screen'])
+    ->withAttributeProvider(
+        static fn(AssetInterface $asset): array => $asset instanceof ModuleScript
+            ? ['data-entry' => 'application']
+            : [],
+    );
 ```
 
 Attribute names must begin with a letter or underscore and may otherwise contain letters, digits, underscores, or hyphens.
@@ -52,7 +53,7 @@ header("Content-Security-Policy: script-src 'nonce-{$nonce}' 'strict-dynamic'; o
 
 $html = (new HtmlRenderer())->render(
     $vite->resolve(),
-    new HtmlRenderOptions(nonce: $nonce),
+    HtmlRenderOptions::create()->withNonce($nonce),
 );
 ```
 

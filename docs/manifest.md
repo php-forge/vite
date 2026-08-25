@@ -24,6 +24,11 @@ Unknown chunk fields are accepted as forward-compatible input and ignored. Known
 Every `file`, `css`, and `assets` value must be a safe relative build path. Every static or dynamic reference must identify
 another manifest entry.
 
+Consumers constructing chunks directly can use `ManifestChunk::create($key, $file)` or its public two-argument constructor,
+then replace optional fields with `withSrc()`, `withCss()`, `withAssets()`, `withEntry()`, `withName()`,
+`withDynamicEntry()`, `withImports()`, and `withDynamicImports()`. Each modifier returns a new chunk. Optional values are
+read through the corresponding typed getters.
+
 ## Initial-page resolution
 
 For each requested entrypoint, the resolver:
@@ -39,8 +44,8 @@ prevents infinite recursion for malformed circular import graphs and prevents re
 Selected entrypoint scripts are not also emitted as modulepreload assets.
 
 `dynamicImports` are validated but are not placed in the initial page because the browser loads them when the application
-executes the corresponding dynamic import. The `assets` field is represented in `ManifestChunk` for consumers inspecting a
-manifest, but generic HTML tags cannot be inferred safely from those files and are not emitted automatically.
+executes the corresponding dynamic import. The `assets` field is available through `ManifestChunk::assets()` for consumers
+inspecting a manifest, but generic HTML tags cannot be inferred safely from those files and are not emitted automatically.
 
 ## Failure behavior
 

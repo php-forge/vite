@@ -92,6 +92,26 @@ final readonly class Vite
     }
 
     /**
+     * Creates a facade using the supplied configuration and default entrypoints.
+     *
+     * @param DevelopmentConfiguration|ProductionConfiguration $configuration Configuration selecting the strategy.
+     * @param list<mixed> $entrypoints Default entrypoints to validate and resolve when no override is supplied.
+     * @param ManifestLoader|null $manifestLoader Loader to share across instances, or `null` to create one.
+     *
+     * @throws InvalidEntrypointException if a default entrypoint is not a `string`, is empty, or contains a
+     * backslash or a control character.
+     *
+     * @return Vite A new facade using the supplied configuration.
+     */
+    public static function create(
+        DevelopmentConfiguration|ProductionConfiguration $configuration,
+        array $entrypoints = [],
+        ManifestLoader|null $manifestLoader = null,
+    ): self {
+        return new self($configuration, $entrypoints, $manifestLoader);
+    }
+
+    /**
      * Resolves entrypoints into the framework-neutral assets a page must load.
      *
      * At least one entrypoint is required at this point, whether it comes from the override or from the defaults

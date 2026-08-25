@@ -68,7 +68,7 @@ final readonly class ManifestAssetResolver implements AssetResolverInterface
                 );
             }
 
-            if (!$chunk->isEntry) {
+            if (!$chunk->isEntry()) {
                 throw new InvalidManifestException(
                     Message::MANIFEST_ENTRY_NOT_ENTRYPOINT->getMessage(
                         $entrypoint,
@@ -152,7 +152,7 @@ final readonly class ManifestAssetResolver implements AssetResolverInterface
      */
     private function collectCss(array &$stylesheets, ManifestChunk $chunk): void
     {
-        foreach ($chunk->css as $file) {
+        foreach ($chunk->css() as $file) {
             $this->pushStylesheet($stylesheets, $file);
         }
     }
@@ -173,7 +173,7 @@ final readonly class ManifestAssetResolver implements AssetResolverInterface
     {
         $chunks = [];
 
-        foreach ($chunk->imports as $reference) {
+        foreach ($chunk->imports() as $reference) {
             if (isset($seen[$reference])) {
                 continue;
             }

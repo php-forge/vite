@@ -97,6 +97,7 @@ final class ManifestLoader
         }
 
         $fingerprint = $this->fingerprint($metadata);
+
         $cached = $this->cache[$manifestPath] ?? null;
 
         if ($cached !== null && $cached['fingerprint'] === $fingerprint) {
@@ -344,22 +345,21 @@ final class ManifestLoader
                 );
             }
 
-            $chunks[$key] = new ManifestChunk(
-                key: $key,
-                file: $file,
-                src: $this->optionalString($value, 'src', $key, $manifestPath),
-                css: $this->optionalList($value, 'css', $key, $manifestPath, true),
-                assets: $this->optionalList($value, 'assets', $key, $manifestPath, true),
-                isEntry: $this->optionalBool($value, 'isEntry', $key, $manifestPath),
-                name: $this->optionalString($value, 'name', $key, $manifestPath),
-                isDynamicEntry: $this->optionalBool($value, 'isDynamicEntry', $key, $manifestPath),
-                imports: $this->optionalList($value, 'imports', $key, $manifestPath, false),
-                dynamicImports: $this->optionalList($value, 'dynamicImports', $key, $manifestPath, false),
-            );
+            $chunks[$key] = ManifestChunk::create($key, $file)
+                ->withSrc($this->optionalString($value, 'src', $key, $manifestPath))
+                ->withCss($this->optionalList($value, 'css', $key, $manifestPath, true))
+                ->withAssets($this->optionalList($value, 'assets', $key, $manifestPath, true))
+                ->withEntry($this->optionalBool($value, 'isEntry', $key, $manifestPath))
+                ->withName($this->optionalString($value, 'name', $key, $manifestPath))
+                ->withDynamicEntry($this->optionalBool($value, 'isDynamicEntry', $key, $manifestPath))
+                ->withImports($this->optionalList($value, 'imports', $key, $manifestPath, false))
+                ->withDynamicImports($this->optionalList($value, 'dynamicImports', $key, $manifestPath, false));
         }
 
         foreach ($chunks as $chunk) {
-            foreach (['imports' => $chunk->imports, 'dynamicImports' => $chunk->dynamicImports] as $field => $references) {
+            foreach (
+                ['imports' => $chunk->imports(), 'dynamicImports' => $chunk->dynamicImports()] as $field => $references
+            ) {
                 foreach ($references as $reference) {
                     if (!array_key_exists($reference, $chunks)) {
                         throw new InvalidManifestException(

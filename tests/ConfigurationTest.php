@@ -7,6 +7,7 @@ namespace PHPForge\Vite\Tests;
 use PHPForge\Vite\Asset\{InlineModule, ModuleScript};
 use PHPForge\Vite\Configuration\{DevelopmentConfiguration, ProductionConfiguration};
 use PHPForge\Vite\Exception\{ConfigurationException, InvalidEntrypointException, Message};
+use PHPForge\Vite\Manifest\ManifestLoader;
 use PHPForge\Vite\Tests\Fixture\CapturingInlineModuleProviderStub;
 use PHPForge\Vite\Tests\Provider\ConfigurationProvider;
 use PHPForge\Vite\Vite;
@@ -15,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 
 /**
- * Unit tests for {@see DevelopmentConfiguration} and {@see ProductionConfiguration} input normalization and validation.
+ * Unit tests for configuration validation and {@see Vite} facade construction.
  *
  * {@see ConfigurationProvider} for test case data providers.
  */
@@ -28,6 +29,38 @@ final class ConfigurationTest extends TestCase
             'HTTPS://cdn.example.com/app.js',
             (new ModuleScript(' HTTPS://cdn.example.com/app.js '))->url,
             'Outer whitespace must be removed from the safe absolute URL.',
+        );
+    }
+
+    public function testCreateReturnsConfiguredViteFacade(): void
+    {
+        $manifestPath = __DIR__ . '/Fixture/manifest.json';
+
+        $loader = new ManifestLoader();
+
+        $cachedManifest = $loader->load($manifestPath);
+
+        $vite = Vite::create(
+            new ProductionConfiguration($manifestPath, '/build'),
+            ['views/foo.js'],
+            $loader,
+        );
+
+        self::assertSame(
+            ['/build/assets/foo-BRBmoGS9.js'],
+            array_map(
+                static fn(ModuleScript $script): string => $script->url,
+                $vite->resolve()->moduleScripts(),
+            ),
+            'The factory must forward the configuration and default entrypoints.',
+        );
+
+        $vite->clearManifestCache();
+
+        self::assertNotSame(
+            $cachedManifest,
+            $loader->load($manifestPath),
+            'The factory must forward a shared manifest loader.',
         );
     }
 

@@ -42,7 +42,7 @@ $configuration = $isDevelopment
         assetBaseUrl: '/build',
     );
 
-$vite = new Vite($configuration, entrypoints: ['resources/js/app.js']);
+$vite = Vite::create($configuration, entrypoints: ['resources/js/app.js']);
 
 $assets = $vite->resolve();
 
@@ -122,7 +122,7 @@ use PHPForge\Vite\Vite;
 use Yiisoft\Aliases\Aliases;
 
 static function (Aliases $aliases): Vite {
-    return new Vite(
+    return Vite::create(
         new ProductionConfiguration(
             manifestPath: $aliases->get('@public/build/.vite/manifest.json'),
             assetBaseUrl: '/build',
@@ -167,7 +167,7 @@ $configuration = new DevelopmentConfiguration(
     inlineModuleProviders: [new ReactRefreshPreamble()],
 );
 
-$vite = new Vite($configuration, entrypoints: ['resources/js/app.jsx']);
+$vite = Vite::create($configuration, entrypoints: ['resources/js/app.jsx']);
 ```
 
 Providers run in their configured order before `@vite/client` and the entrypoint scripts. The application owns the provider

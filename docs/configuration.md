@@ -49,7 +49,7 @@ strings, fragments, and non-HTTP schemes are rejected.
 ```php
 use PHPForge\Vite\Vite;
 
-$vite = new Vite(
+$vite = Vite::create(
     configuration: $configuration,
     entrypoints: ['resources/js/app.js'],
 );
@@ -58,6 +58,9 @@ $defaultAssets = $vite->resolve();
 $pageAssets = $vite->resolve('resources/js/admin.js');
 $combinedAssets = $vite->resolve(['resources/js/app.js', 'resources/js/admin.js']);
 ```
+
+`Vite::create()` is an additive construction shortcut. The public constructor remains available for dependency-injection
+containers and accepts the same arguments.
 
 Default entrypoints belong to the facade because they apply equally to development and production. Duplicate entrypoints
 are removed while preserving the first occurrence. At least one entrypoint must be available when `Vite::resolve()` is
@@ -97,13 +100,16 @@ use PHPForge\Vite\Html\HtmlRenderOptions;
 
 $html = (new HtmlRenderer())->render(
     $vite->resolve(),
-    new HtmlRenderOptions(
-        nonce: $nonce,
-        moduleScriptAttributes: ['crossorigin' => true],
-        stylesheetAttributes: ['media' => 'screen'],
-    ),
+    HtmlRenderOptions::create()
+        ->withNonce($nonce)
+        ->withModuleScriptAttributes(['crossorigin' => true])
+        ->withStylesheetAttributes(['media' => 'screen']),
 );
 ```
+
+`HtmlRenderOptions::create()` starts with the default policy. Use `withNonce()`, `withSeparator()`, the four per-asset
+attribute modifiers, and `withAttributeProvider()` to replace individual values. Every modifier returns a new policy and
+leaves the original instance unchanged.
 
 `HtmlRenderer` maps the neutral asset objects to `ui-awesome/html` `Script` and `Link` elements. Applications that consume
 `AssetCollection` directly do not depend on the renderer's markup structure.
