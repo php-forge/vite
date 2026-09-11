@@ -25,16 +25,16 @@ modifies `package.json`, installs Vite, or runs a package manager.
 Production resolution requires Vite's client build manifest. Enable it in the application's Vite configuration:
 
 ```js
-import {defineConfig} from 'vite';
+import { defineConfig } from "vite";
 
 export default defineConfig({
-    build: {
-        outDir: 'public/build',
-        manifest: '.vite/manifest.json',
-        rollupOptions: {
-            input: 'resources/js/app.js',
-        },
+  build: {
+    outDir: "public/build",
+    manifest: ".vite/manifest.json",
+    rollupOptions: {
+      input: "resources/js/app.js",
     },
+  },
 });
 ```
 
