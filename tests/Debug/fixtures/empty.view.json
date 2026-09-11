@@ -1,0 +1,33 @@
+{
+    "summary": [
+        {
+            "label": " components",
+            "value": {
+                "kind": "text",
+                "value": "0",
+                "style": "strong"
+            }
+        }
+    ],
+    "blocks": [
+        {
+            "kind": "emptyState",
+            "title": "No Vite integrations captured",
+            "paragraphs": [
+                {
+                    "kind": "paragraph",
+                    "content": [
+                        {
+                            "kind": "text",
+                            "value": "This request did not use an initialized Vite application component.",
+                            "style": "plain"
+                        }
+                    ],
+                    "tone": null
+                }
+            ]
+        }
+    ],
+    "toolbar": [],
+    "active": false
+}

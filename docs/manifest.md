@@ -24,10 +24,8 @@ Unknown chunk fields are accepted as forward-compatible input and ignored. Known
 Every `file`, `css`, and `assets` value must be a safe relative build path. Every static or dynamic reference must identify
 another manifest entry.
 
-Consumers constructing chunks directly can use `ManifestChunk::create($key, $file)` or its public two-argument constructor,
-then replace optional fields with `withSrc()`, `withCss()`, `withAssets()`, `withEntry()`, `withName()`,
-`withDynamicEntry()`, `withImports()`, and `withDynamicImports()`. Each modifier returns a new chunk. Optional values are
-read through the corresponding typed getters.
+To build chunks directly, start from `ManifestChunk::create($key, $file)` and set optional fields with the matching
+`with*()` modifiers, each returning a new chunk.
 
 ## Initial-page resolution
 
@@ -39,13 +37,11 @@ For each requested entrypoint, the resolver:
 4. emits a module script for each non-CSS entrypoint;
 5. optionally emits modulepreload assets for imported JavaScript chunks.
 
-Asset identities are deduplicated without sorting, so the first discovered location determines output order. A visited set
-prevents infinite recursion for malformed circular import graphs and prevents repeated work across multiple entrypoints.
-Selected entrypoint scripts are not also emitted as modulepreload assets.
+Assets are deduplicated without sorting, so the first discovered location fixes the output order, and circular import
+graphs terminate. Entrypoint scripts are never also emitted as modulepreload assets.
 
-`dynamicImports` are validated but are not placed in the initial page because the browser loads them when the application
-executes the corresponding dynamic import. The `assets` field is available through `ManifestChunk::assets()` for consumers
-inspecting a manifest, but generic HTML tags cannot be inferred safely from those files and are not emitted automatically.
+`dynamicImports` are validated but left out of the initial page: the browser loads them when the dynamic import runs.
+`assets` is readable through `ManifestChunk::assets()` but never emitted, since no safe HTML tag can be inferred from it.
 
 ## Failure behavior
 
@@ -66,10 +62,6 @@ There are no silent development fallbacks in production mode.
 This package consumes Vite's client build manifest only. It does not consume the SSR manifest, transform HTML, implement
 experimental import maps, or decide how arbitrary copied assets should be presented.
 
-## Next steps
+---
 
-- 📚 [Installation guide](installation.md)
-- ⚙️ [Configuration reference](configuration.md)
-- 💡 [Usage examples](examples.md)
-- 🔒 [Security and CSP](security.md)
-- 🧪 [Testing guide](testing.md)
+[← Back to documentation](../README.md#documentation)

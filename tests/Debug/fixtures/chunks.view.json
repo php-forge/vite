@@ -1,0 +1,228 @@
+{
+    "summary": [
+        {
+            "label": " component",
+            "value": {
+                "kind": "text",
+                "value": "1",
+                "style": "strong"
+            }
+        },
+        {
+            "label": "",
+            "value": {
+                "kind": "text",
+                "value": "Production",
+                "style": "plain"
+            }
+        }
+    ],
+    "blocks": [
+        {
+            "kind": "group",
+            "label": "Vite component frontend",
+            "content": {
+                "summary": [],
+                "blocks": [
+                    {
+                        "kind": "overview",
+                        "fields": [
+                            {
+                                "label": "Component ID",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "frontend",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Class",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "Example\\Vite",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Implementation",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "modern",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Mode",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "Production",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Inspection",
+                                "value": {
+                                    "kind": "badge",
+                                    "label": "Available",
+                                    "tone": "success"
+                                }
+                            },
+                            {
+                                "label": "Entry points",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "app.js, style.css",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Base URL",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "/assets",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Dev server",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "http://localhost:5173",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Manifest",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "/app/manifest.json",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Vite client",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "Not applicable",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Module preload",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "Disabled",
+                                    "style": "plain"
+                                }
+                            }
+                        ],
+                        "compact": true
+                    },
+                    {
+                        "kind": "heading",
+                        "title": "Build chunks",
+                        "section": true
+                    },
+                    {
+                        "kind": "table",
+                        "headers": [
+                            "#",
+                            "Chunk",
+                            "Output",
+                            "CSS",
+                            "Imports",
+                            "Entry"
+                        ],
+                        "rows": [
+                            [
+                                {
+                                    "kind": "text",
+                                    "value": "1",
+                                    "style": "plain"
+                                },
+                                {
+                                    "kind": "text",
+                                    "value": "app.js",
+                                    "style": "strong"
+                                },
+                                {
+                                    "kind": "text",
+                                    "value": "0",
+                                    "style": "plain"
+                                },
+                                {
+                                    "kind": "text",
+                                    "value": "2",
+                                    "style": "plain"
+                                },
+                                {
+                                    "kind": "text",
+                                    "value": "3",
+                                    "style": "plain"
+                                },
+                                {
+                                    "kind": "badge",
+                                    "label": "entry",
+                                    "tone": "success"
+                                }
+                            ],
+                            [
+                                {
+                                    "kind": "text",
+                                    "value": "2",
+                                    "style": "plain"
+                                },
+                                {
+                                    "kind": "text",
+                                    "value": "vendor",
+                                    "style": "strong"
+                                },
+                                {
+                                    "kind": "text",
+                                    "value": "—",
+                                    "style": "plain"
+                                },
+                                {
+                                    "kind": "text",
+                                    "value": "0",
+                                    "style": "plain"
+                                },
+                                {
+                                    "kind": "text",
+                                    "value": "0",
+                                    "style": "plain"
+                                },
+                                {
+                                    "kind": "text",
+                                    "value": "—",
+                                    "style": "plain"
+                                }
+                            ]
+                        ],
+                        "styles": {
+                            "1": "monospace",
+                            "2": "monospace",
+                            "3": "number",
+                            "4": "number",
+                            "5": "pill"
+                        },
+                        "collapsible": false
+                    }
+                ],
+                "toolbar": [],
+                "active": true
+            }
+        }
+    ],
+    "toolbar": [
+        {
+            "label": "Vite mode",
+            "value": {
+                "kind": "text",
+                "value": "Production",
+                "style": "plain"
+            }
+        }
+    ],
+    "active": true
+}

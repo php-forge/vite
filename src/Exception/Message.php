@@ -106,6 +106,83 @@ enum Message: string
     case DEVELOPMENT_SERVER_URL_INVALID = 'The "devServerUrl" value must be an absolute HTTP(S) URL.';
 
     /**
+     * A captured build chunk has missing or malformed fields.
+     *
+     * Format: "Vite chunk diagnostics are invalid."
+     */
+    case DIAGNOSTICS_CHUNK_INVALID = 'Vite chunk diagnostics are invalid.';
+
+    /**
+     * The captured build chunks are not a list.
+     *
+     * Format: "Vite chunks must be a list."
+     */
+    case DIAGNOSTICS_CHUNK_LIST_INVALID = 'Vite chunks must be a list.';
+
+    /**
+     * A captured component is not an object.
+     *
+     * Format: "Vite component diagnostics must be an object."
+     */
+    case DIAGNOSTICS_COMPONENT_INVALID = 'Vite component diagnostics must be an object.';
+
+    /**
+     * The capture carries no component list.
+     *
+     * Format: "Vite diagnostics must contain a component list."
+     */
+    case DIAGNOSTICS_COMPONENT_LIST_REQUIRED = 'Vite diagnostics must contain a component list.';
+
+    /**
+     * The captured entrypoints are not a list.
+     *
+     * Format: "Vite entrypoints must be a list."
+     */
+    case DIAGNOSTICS_ENTRYPOINT_LIST_INVALID = 'Vite entrypoints must be a list.';
+
+    /**
+     * A captured entrypoint is not a `string`.
+     *
+     * Format: "Vite entrypoints must be strings."
+     */
+    case DIAGNOSTICS_ENTRYPOINT_TYPE_INVALID = 'Vite entrypoints must be strings.';
+
+    /**
+     * A captured configuration flag is neither a boolean nor `null`.
+     *
+     * Format: "Vite flags must be boolean or null."
+     */
+    case DIAGNOSTICS_FLAG_INVALID = 'Vite flags must be boolean or null.';
+
+    /**
+     * The captured inspection availability is not a boolean.
+     *
+     * Format: "Vite inspection availability must be a boolean."
+     */
+    case DIAGNOSTICS_INSPECTION_INVALID = 'Vite inspection availability must be a boolean.';
+
+    /**
+     * A captured component declares an unknown resolution mode.
+     *
+     * Format: "Unknown Vite diagnostics mode."
+     */
+    case DIAGNOSTICS_MODE_UNKNOWN = 'Unknown Vite diagnostics mode.';
+
+    /**
+     * A captured diagnostics value is neither a `string` nor `null`.
+     *
+     * Format: "Vite %s must be a string or null."
+     */
+    case DIAGNOSTICS_VALUE_NOT_NULLABLE_STRING = 'Vite %s must be a string or null.';
+
+    /**
+     * A captured diagnostics value is not a `string`.
+     *
+     * Format: "Vite %s must be a string."
+     */
+    case DIAGNOSTICS_VALUE_NOT_STRING = 'Vite %s must be a string.';
+
+    /**
      * A Vite entrypoint is not a valid relative source path.
      *
      * Format: "Each Vite entrypoint must be a non-empty relative source path."

@@ -1,0 +1,21 @@
+{
+  "components": [
+    {
+      "id": "frontend",
+      "class": "Example\\Vite",
+      "implementation": "modern",
+      "inspectionAvailable": true,
+      "mode": "unknown",
+      "entrypoints": [
+        "app.js",
+        "style.css"
+      ],
+      "baseUrl": "/assets",
+      "devServerUrl": "http://localhost:5173",
+      "manifestPath": "/app/manifest.json",
+      "includeViteClient": true,
+      "modulePreload": false,
+      "chunks": []
+    }
+  ]
+}

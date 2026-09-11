@@ -40,20 +40,8 @@
 composer require php-forge/vite:^0.2
 ```
 
-HTML output is generated with [`ui-awesome/html`](https://github.com/ui-awesome/html) while asset resolution remains
-independent from its representation.
-
-The consuming application owns Vite and every JavaScript dependency. Configure Vite to write a build manifest:
-
-```js
-import {defineConfig} from 'vite';
-
-export default defineConfig({
-    build: {
-        manifest: true,
-    },
-});
-```
+The consuming application owns Vite and every JavaScript dependency. Production resolution needs Vite's build
+manifest; see [Installation](docs/installation.md) for the `vite.config.js` settings and the resulting manifest path.
 
 ## Quick start
 
@@ -99,7 +87,35 @@ echo HtmlRenderer::create()->render($vite->resolve());
 - [Manifest resolution](docs/manifest.md)
 - [Usage examples](docs/examples.md)
 - [Security and CSP](docs/security.md)
+- [Debugger integration](docs/debugging.md)
 - [Testing guide](docs/testing.md)
+
+## Debugger integration
+
+`Vite::resolve()` emits `AssetsResolved` through an optional PSR-14 dispatcher. The asset resolution path never
+imports a debug contract or calls a collector, so installing the package does not activate a debugger and a call
+without a dispatcher emits no events. The collector and panel that do implement those contracts live apart, in
+`PHPForge\Vite\Debug`, owned by this package.
+
+See [Debugger integration](docs/debugging.md) for the Yii2 and Yii3 wiring. It remains an unreleased prototype.
+
+<details>
+<summary>Yii2</summary>
+<picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/yii2-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="docs/images/yii2-light.png">
+    <img src="docs/images/yii2-light.png" alt="Vite panel in Yii2">
+</picture>
+</details>
+
+<details>
+<summary>Yii3</summary>
+<picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/yii3-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="docs/images/yii3-light.png">
+    <img src="docs/images/yii3-light.png" alt="Vite panel in Yii3">
+</picture>
+</details>
 
 ## Package information
 
