@@ -37,7 +37,7 @@
 ## Installation
 
 ```bash
-composer require php-forge/vite:^0.2
+composer require php-forge/vite:^0.3
 ```
 
 The consuming application owns Vite and every JavaScript dependency. Production resolution needs Vite's build
@@ -80,16 +80,6 @@ $vite = Vite::create(
 echo HtmlRenderer::create()->render($vite->resolve());
 ```
 
-## Documentation
-
-- [Installation guide](docs/installation.md)
-- [Configuration reference](docs/configuration.md)
-- [Manifest resolution](docs/manifest.md)
-- [Usage examples](docs/examples.md)
-- [Security and CSP](docs/security.md)
-- [Debugger integration](docs/debugging.md)
-- [Testing guide](docs/testing.md)
-
 ## Debugger integration
 
 `Vite::resolve()` emits `AssetsResolved` through an optional PSR-14 dispatcher. The asset resolution path never
@@ -116,6 +106,16 @@ See [Debugger integration](docs/debugging.md) for the Yii2 and Yii3 wiring. It r
     <img src="docs/images/yii3-light.png" alt="Vite panel in Yii3">
 </picture>
 </details>
+
+## Documentation
+
+- [Installation guide](docs/installation.md)
+- [Configuration reference](docs/configuration.md)
+- [Manifest resolution](docs/manifest.md)
+- [Usage examples](docs/examples.md)
+- [Security and CSP](docs/security.md)
+- [Debugger integration](docs/debugging.md)
+- [Testing guide](docs/testing.md)
 
 ## Package information
 
