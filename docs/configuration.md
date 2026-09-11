@@ -59,15 +59,11 @@ $pageAssets = $vite->resolve('resources/js/admin.js');
 $combinedAssets = $vite->resolve(['resources/js/app.js', 'resources/js/admin.js']);
 ```
 
-`Vite::create()` is an additive construction shortcut. The public constructor remains available for dependency-injection
-containers and accepts the same arguments.
+`Vite::create()` is a shortcut; the public constructor takes the same arguments and suits DI containers.
 
-Default entrypoints belong to the facade because they apply equally to development and production. Duplicate entrypoints
-are removed while preserving the first occurrence. At least one entrypoint must be available when `Vite::resolve()` is
-called.
-
-An explicit argument to `resolve()` replaces the facade's default entrypoints for that call. Entrypoint identifiers are
-Vite manifest keys or development source paths, not filesystem paths.
+An explicit argument to `resolve()` replaces the facade's default entrypoints for that call. Duplicates are removed
+keeping the first occurrence, and at least one entrypoint must be available. Identifiers are Vite manifest keys or
+development source paths, never filesystem paths.
 
 ## Manifest loading and cache
 
@@ -107,14 +103,8 @@ $html = HtmlRenderer::create()->render(
 );
 ```
 
-`HtmlRenderOptions::create()` starts with the default policy. Use `withNonce()`, `withSeparator()`, the four per-asset
-attribute modifiers, and `withAttributeProvider()` to replace individual values. Every modifier returns a new policy and
-leaves the original instance unchanged.
-
-`HtmlRenderer` maps the neutral asset objects to `ui-awesome/html` `Script` and `Link` elements. Applications that consume
-`AssetCollection` directly do not depend on the renderer's markup structure.
-
-See [Security and CSP](security.md) for the attribute and nonce policy.
+Every `HtmlRenderOptions` modifier returns a new policy and leaves the original unchanged. See
+[Security and CSP](security.md) for the full attribute and nonce policy.
 
 ## Neutral asset collection
 
@@ -125,9 +115,8 @@ See [Security and CSP](security.md) for the attribute and nonce policy.
 - `ModulePreload` with a public `url`;
 - `InlineModule` with public application-owned JavaScript `source`.
 
-The collection is countable and iterable. Use `all()`, `moduleScripts()`, `stylesheets()`, `modulePreloads()`, or
-`inlineModules()` to obtain ordered lists. `append()` and `prepend()` return new deduplicated collections without mutating the
-original instance.
+The collection is countable and iterable. `all()`, `moduleScripts()`, `stylesheets()`, `modulePreloads()` and
+`inlineModules()` return ordered lists; `append()` and `prepend()` return new deduplicated collections.
 
 ## Exception hierarchy
 
@@ -148,10 +137,6 @@ ViteException
 Configuration and rendering exceptions extend `InvalidArgumentException`. Manifest exceptions extend `RuntimeException`.
 Callers can catch one specific failure, a category base class, or the common marker interface.
 
-## Next steps
+---
 
-- 📚 [Installation guide](installation.md)
-- 📦 [Manifest resolution](manifest.md)
-- 💡 [Usage examples](examples.md)
-- 🔒 [Security and CSP](security.md)
-- 🧪 [Testing guide](testing.md)
+[← Back to documentation](../README.md#documentation)

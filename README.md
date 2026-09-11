@@ -40,20 +40,8 @@
 composer require php-forge/vite:^0.2
 ```
 
-HTML output is generated with [`ui-awesome/html`](https://github.com/ui-awesome/html) while asset resolution remains
-independent from its representation.
-
-The consuming application owns Vite and every JavaScript dependency. Configure Vite to write a build manifest:
-
-```js
-import {defineConfig} from 'vite';
-
-export default defineConfig({
-    build: {
-        manifest: true,
-    },
-});
-```
+The consuming application owns Vite and every JavaScript dependency. Production resolution needs Vite's build manifest
+— see [Installation](docs/installation.md) for the `vite.config.js` settings and the resulting manifest path.
 
 ## Quick start
 
@@ -99,7 +87,16 @@ echo HtmlRenderer::create()->render($vite->resolve());
 - [Manifest resolution](docs/manifest.md)
 - [Usage examples](docs/examples.md)
 - [Security and CSP](docs/security.md)
+- [Debugger integration](docs/debugging.md)
 - [Testing guide](docs/testing.md)
+
+## Debugger integration
+
+`Vite::resolve()` emits `AssetsResolved` through an optional PSR-14 dispatcher. The package never imports debug
+contracts or calls a collector, so installing it does not activate a debugger and a call without a dispatcher emits no
+events. The collector and panel live in `PHPForge\Vite\Debug`, owned by this package.
+
+See [Debugger integration](docs/debugging.md) for the Yii2 and Yii3 wiring. It remains an unreleased prototype.
 
 ## Package information
 

@@ -30,7 +30,9 @@
     "prefer-stable": true,
     "require": {
         "php": ">=8.3",
-        "ui-awesome/html": "^0.6"
+        "ui-awesome/html": "^0.6",
+        "php-forge/debug": "^0.1@dev",
+        "psr/event-dispatcher": "^1.0"
     },
     "require-dev": {
         "infection/infection": "^0.35",

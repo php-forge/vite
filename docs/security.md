@@ -29,14 +29,12 @@ $options = HtmlRenderOptions::create()
     );
 ```
 
-Attribute names must begin with a letter or underscore and may otherwise contain letters, digits, underscores, or hyphens.
-Values may be strings, integers, floats, booleans, or `null`. Boolean `true` emits a valueless attribute; `false` and `null`
-omit it. Inline event-handler attributes, `style`, required renderer attributes, nonce overrides, and duplicate names are
+Names must start with a letter or underscore and continue with letters, digits, underscores or hyphens. Values may be
+strings, integers, floats, booleans or `null`: `true` emits a valueless attribute, `false` and `null` omit it. Inline
+event handlers, `style`, required renderer attributes, nonce overrides and duplicate names (case-insensitive) are
 rejected.
 
-The callback receives a neutral `AssetInterface` instance and must return an attribute array. A callback value replaces a
-per-type value with the same exact key. Names that differ only by case are treated as duplicates and rejected by the
-renderer.
+A callback value replaces a per-type value with the same key.
 
 ## CSP nonce
 
@@ -57,17 +55,12 @@ $html = HtmlRenderer::create()->render(
 );
 ```
 
-The renderer places the nonce on each generated script and link tag. The application remains responsible for the complete
-CSP header, response-specific nonce lifecycle, browser compatibility, and policy directives for other resources.
+The renderer places the nonce on every generated script and link tag. The complete CSP header, the per-response nonce
+lifecycle and every other directive stay with the application.
 
-Development servers commonly require additional `connect-src` origins for HTTP and WebSocket HMR connections and may
-serve resources from a separate origin. Configure those directives only in the application's development policy; this
-package does not weaken CSP automatically.
+Dev servers usually need extra `connect-src` origins for HTTP and WebSocket HMR. Add those to the application's
+development policy only — this package never weakens CSP on its own.
 
-## Next steps
+---
 
-- 📚 [Installation guide](installation.md)
-- ⚙️ [Configuration reference](configuration.md)
-- 📦 [Manifest resolution](manifest.md)
-- 💡 [Usage examples](examples.md)
-- 🧪 [Testing guide](testing.md)
+[← Back to documentation](../README.md#documentation)

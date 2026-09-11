@@ -1,0 +1,165 @@
+{
+    "summary": [
+        {
+            "label": " component",
+            "value": {
+                "kind": "text",
+                "value": "1",
+                "style": "strong"
+            }
+        },
+        {
+            "label": "",
+            "value": {
+                "kind": "text",
+                "value": "Unknown",
+                "style": "plain"
+            }
+        }
+    ],
+    "blocks": [
+        {
+            "kind": "group",
+            "label": "Vite component frontend",
+            "content": {
+                "summary": [],
+                "blocks": [
+                    {
+                        "kind": "overview",
+                        "fields": [
+                            {
+                                "label": "Component ID",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "frontend",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Class",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "Example\\Vite",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Implementation",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "modern",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Mode",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "Unknown",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Inspection",
+                                "value": {
+                                    "kind": "badge",
+                                    "label": "Unavailable",
+                                    "tone": "warning"
+                                }
+                            },
+                            {
+                                "label": "Entry points",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "—",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Base URL",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "—",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Dev server",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "—",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Manifest",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "—",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Vite client",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "Unknown",
+                                    "style": "plain"
+                                }
+                            },
+                            {
+                                "label": "Module preload",
+                                "value": {
+                                    "kind": "text",
+                                    "value": "Unknown",
+                                    "style": "plain"
+                                }
+                            }
+                        ],
+                        "compact": true
+                    },
+                    {
+                        "kind": "paragraph",
+                        "content": [
+                            {
+                                "kind": "text",
+                                "value": "Runtime inspection is unavailable for this component. Its public configuration could not be read without changing application state.",
+                                "style": "plain"
+                            }
+                        ],
+                        "tone": "warning"
+                    },
+                    {
+                        "kind": "heading",
+                        "title": "Build chunks",
+                        "section": true
+                    },
+                    {
+                        "kind": "paragraph",
+                        "content": [
+                            {
+                                "kind": "text",
+                                "value": "No build chunks were available for inspection.",
+                                "style": "plain"
+                            }
+                        ],
+                        "tone": null
+                    }
+                ],
+                "toolbar": [],
+                "active": true
+            }
+        }
+    ],
+    "toolbar": [
+        {
+            "label": "Vite mode",
+            "value": {
+                "kind": "text",
+                "value": "Unknown",
+                "style": "plain"
+            }
+        }
+    ],
+    "active": true
+}

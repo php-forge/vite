@@ -17,6 +17,7 @@ use PHPForge\Vite\Exception\{
 use PHPForge\Vite\Manifest\ManifestLoader;
 use PHPForge\Vite\Resolver\{AssetResolverInterface, DevelopmentAssetResolver, ManifestAssetResolver};
 use PHPForge\Vite\Support\EntrypointNormalizer;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Resolves framework-neutral Vite assets for development-server or production-manifest configuration.
@@ -53,6 +54,7 @@ final readonly class Vite
      * @param DevelopmentConfiguration|ProductionConfiguration $configuration Configuration selecting the strategy.
      * @param list<mixed> $entrypoints Default entrypoints to validate and resolve when no override is supplied.
      * @param ManifestLoader|null $manifestLoader Loader to share across instances, or `null` to create one.
+     * @param EventDispatcherInterface|null $eventDispatcher Optional dispatcher for completed asset resolutions.
      *
      * @throws InvalidEntrypointException if a default entrypoint is not a `string`, is empty, or contains a
      * backslash or a control character.
@@ -61,6 +63,7 @@ final readonly class Vite
         DevelopmentConfiguration|ProductionConfiguration $configuration,
         array $entrypoints = [],
         ManifestLoader|null $manifestLoader = null,
+        EventDispatcherInterface|null $eventDispatcher = null,
     ) {
         $this->manifestLoader = $manifestLoader ?? new ManifestLoader();
 
@@ -69,14 +72,14 @@ final readonly class Vite
         if ($configuration instanceof DevelopmentConfiguration) {
             $this->manifestPath = null;
 
-            $this->resolver = new DevelopmentAssetResolver($configuration);
+            $this->resolver = new DevelopmentAssetResolver($configuration, $eventDispatcher);
 
             return;
         }
 
         $this->manifestPath = $configuration->manifestPath;
 
-        $this->resolver = new ManifestAssetResolver($configuration, $this->manifestLoader);
+        $this->resolver = new ManifestAssetResolver($configuration, $this->manifestLoader, $eventDispatcher);
     }
 
     /**
@@ -97,6 +100,7 @@ final readonly class Vite
      * @param DevelopmentConfiguration|ProductionConfiguration $configuration Configuration selecting the strategy.
      * @param list<mixed> $entrypoints Default entrypoints to validate and resolve when no override is supplied.
      * @param ManifestLoader|null $manifestLoader Loader to share across instances, or `null` to create one.
+     * @param EventDispatcherInterface|null $eventDispatcher Optional dispatcher for completed asset resolutions.
      *
      * @throws InvalidEntrypointException if a default entrypoint is not a `string`, is empty, or contains a
      * backslash or a control character.
@@ -107,8 +111,9 @@ final readonly class Vite
         DevelopmentConfiguration|ProductionConfiguration $configuration,
         array $entrypoints = [],
         ManifestLoader|null $manifestLoader = null,
+        EventDispatcherInterface|null $eventDispatcher = null,
     ): self {
-        return new self($configuration, $entrypoints, $manifestLoader);
+        return new self($configuration, $entrypoints, $manifestLoader, $eventDispatcher);
     }
 
     /**

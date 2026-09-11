@@ -2,26 +2,9 @@
 
 ## Matching Vite build configuration
 
-The plain PHP, Yii2, and Yii3 production examples below target Vite 5 or later and assume this application-owned
-configuration:
-
-```js
-import {defineConfig} from 'vite';
-
-export default defineConfig({
-    build: {
-        outDir: 'public/build',
-        manifest: '.vite/manifest.json',
-        rollupOptions: {
-            input: 'resources/js/app.js',
-        },
-    },
-});
-```
-
-Because `build.manifest` is relative to `build.outDir`, this configuration writes
-`<project-root>/public/build/.vite/manifest.json`. Each PHP example resolves that same file through the path mechanism of
-its application or framework.
+Every example below targets Vite 5 or later and assumes the application-owned `vite.config.js` from
+[Installation](installation.md), which writes `<project-root>/public/build/.vite/manifest.json`. Each example resolves
+that same file through the path mechanism of its application or framework.
 
 ## Plain PHP
 
@@ -75,42 +58,21 @@ The example methods belong to the consuming application; they are not package AP
 
 ## Yii2 integration
 
-Register the facade as an application component so Yii2 owns its lazy construction and lifecycle. The package does not
-access `Yii::getAlias()`, the service locator, or `yii\web\View`:
+Register the facade as a component so Yii2 owns its lazy construction. `__construct()` is Yii2 container syntax and its
+values reach the framework-independent constructor unchanged — the same `$configuration` built above. The package never
+touches `Yii::getAlias()`, the service locator, or `yii\web\View`:
 
 ```php
-use PHPForge\Vite\Configuration\DevelopmentConfiguration;
-use PHPForge\Vite\Configuration\ProductionConfiguration;
-use PHPForge\Vite\Html\HtmlRenderer;
-use PHPForge\Vite\Vite;
-
-$config = [
-    'components' => [
-        'vite' => [
-            'class' => Vite::class,
-            '__construct()' => [
-                'configuration' => YII_ENV === 'dev'
-                    ? DevelopmentConfiguration::create(
-                        devServerUrl: 'http://localhost:5173',
-                    )
-                    : ProductionConfiguration::create(
-                        manifestPath: dirname(__DIR__) . '/public/build/.vite/manifest.json',
-                        assetBaseUrl: '/build',
-                    ),
-                'entrypoints' => ['resources/js/app.js'],
-            ],
-        ],
+$config['components']['vite'] = [
+    'class' => PHPForge\Vite\Vite::class,
+    '__construct()' => [
+        'configuration' => $configuration,
+        'entrypoints' => ['resources/js/app.js'],
     ],
 ];
 
-/** @var Vite $vite */
-$vite = Yii::$app->get('vite');
-
-echo HtmlRenderer::create()->render($vite->resolve());
+echo HtmlRenderer::create()->render(Yii::$app->get('vite')->resolve());
 ```
-
-The `__construct()` entry is Yii2 container syntax. Its values are passed to the framework-independent constructor, and
-the concrete manifest path is resolved entirely by the consuming application.
 
 ## Yii3 integration
 
@@ -173,15 +135,6 @@ $vite = Vite::create($configuration, entrypoints: ['resources/js/app.jsx']);
 Providers run in their configured order before `@vite/client` and the entrypoint scripts. The application owns the provider
 code and the matching Vite plugin dependency.
 
-## Optional Foxy usage
+---
 
-[`php-forge/foxy`](https://github.com/php-forge/foxy) may be used independently by a consuming project to coordinate its
-Composer and JavaScript dependencies. It is not installed, invoked, or configured by this package.
-
-## Next steps
-
-- 📚 [Installation guide](installation.md)
-- ⚙️ [Configuration reference](configuration.md)
-- 📦 [Manifest resolution](manifest.md)
-- 🔒 [Security and CSP](security.md)
-- 🧪 [Testing guide](testing.md)
+[← Back to documentation](../README.md#documentation)

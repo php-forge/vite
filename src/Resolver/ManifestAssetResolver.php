@@ -6,6 +6,7 @@ namespace PHPForge\Vite\Resolver;
 
 use PHPForge\Vite\Asset\{AssetCollection, ModulePreload, ModuleScript, Stylesheet};
 use PHPForge\Vite\Configuration\ProductionConfiguration;
+use PHPForge\Vite\Event\AssetsResolved;
 use PHPForge\Vite\Exception\{
     ConfigurationException,
     EntrypointNotFoundException,
@@ -16,6 +17,7 @@ use PHPForge\Vite\Exception\{
 };
 use PHPForge\Vite\Manifest\{Manifest, ManifestChunk, ManifestLoader};
 use PHPForge\Vite\Support\Url;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Resolves production assets and dependency preloads from a validated Vite manifest.
@@ -25,10 +27,12 @@ final readonly class ManifestAssetResolver implements AssetResolverInterface
     /**
      * @param ProductionConfiguration $configuration Validated production configuration.
      * @param ManifestLoader $manifestLoader Loader providing the validated manifest.
+     * @param EventDispatcherInterface|null $eventDispatcher Optional dispatcher for completed resolutions.
      */
     public function __construct(
         private ProductionConfiguration $configuration,
         private ManifestLoader $manifestLoader,
+        private EventDispatcherInterface|null $eventDispatcher = null,
     ) {}
 
     /**
@@ -127,7 +131,10 @@ final readonly class ManifestAssetResolver implements AssetResolverInterface
             }
         }
 
-        return new AssetCollection($this->orderedAssets($stylesheets, $scripts, $preloads));
+        $collection = new AssetCollection($this->orderedAssets($stylesheets, $scripts, $preloads));
+        $this->eventDispatcher?->dispatch(new AssetsResolved($this->configuration, $entrypoints, $collection, $manifest));
+
+        return $collection;
     }
 
     /**
