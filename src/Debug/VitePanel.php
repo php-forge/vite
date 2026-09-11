@@ -118,7 +118,7 @@ final class VitePanel extends Panel
             return $view->paragraph(
                 match ($mode) {
                     'development' => 'Development mode resolves entry points through the dev server.',
-                    'production' => 'The Vite manifest is missing or empty — run the front-end build to populate it.',
+                    'production' => 'The Vite manifest is missing or empty; run the front-end build to populate it.',
                     default => 'No build chunks were available for inspection.',
                 }
             );

@@ -40,8 +40,8 @@
 composer require php-forge/vite:^0.2
 ```
 
-The consuming application owns Vite and every JavaScript dependency. Production resolution needs Vite's build manifest
-— see [Installation](docs/installation.md) for the `vite.config.js` settings and the resulting manifest path.
+The consuming application owns Vite and every JavaScript dependency. Production resolution needs Vite's build
+manifest; see [Installation](docs/installation.md) for the `vite.config.js` settings and the resulting manifest path.
 
 ## Quick start
 
@@ -98,6 +98,15 @@ without a dispatcher emits no events. The collector and panel that do implement 
 `PHPForge\Vite\Debug`, owned by this package.
 
 See [Debugger integration](docs/debugging.md) for the Yii2 and Yii3 wiring. It remains an unreleased prototype.
+
+<details>
+<summary>Yii2</summary>
+<picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/yii2-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="docs/images/yii2-light.png">
+    <img src="docs/images/yii2-light.png" alt="Vite panel in Yii2">
+</picture>
+</details>
 
 <details>
 <summary>Yii3</summary>

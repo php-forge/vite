@@ -13,11 +13,11 @@ do not invent completion events.
 
 ## Development wiring
 
-The package ships one collector and one panel — `PHPForge\Vite\Debug\ViteCollector` and `PHPForge\Vite\Debug\VitePanel`
-— and the host never reimplements collection or presentation. What differs between frameworks is only how the
-dispatcher reaches the `PHPForge\Vite\Vite` service.
+The package ships one collector and one panel, `PHPForge\Vite\Debug\ViteCollector` and
+`PHPForge\Vite\Debug\VitePanel`; the host never reimplements collection or presentation. What differs between
+frameworks is only how the dispatcher reaches the `PHPForge\Vite\Vite` service.
 
-### Yii3 — one flag, no application code
+### Yii3, one flag and no application code
 
 `yii3/debug` registers the collector and panel behind a flag and attaches the collector as a listener; the container
 autowires `Psr\EventDispatcher\EventDispatcherInterface` into `Vite`, so the application adds nothing else.
@@ -34,7 +34,7 @@ return [
 
 Enabling the flag without `php-forge/vite` installed fails with an explicit container error.
 
-### Yii2 — one registration
+### Yii2, one registration
 
 Yii2 has no framework-native PSR-14 dispatcher, and its DI container does not autowire optional constructor arguments.
 `Vite` emits exactly one event type, so `ViteCollector` is its own single-listener dispatcher and the application
@@ -54,7 +54,7 @@ $config['modules']['debug']['panels']['vite'] = new VitePanel();
 ```
 
 If the application already owns a real PSR-14 dispatcher, register the collector as a listener on it and inject that
-dispatcher instead — never replace a populated dispatcher with an empty one.
+dispatcher instead; never replace a populated dispatcher with an empty one.
 
 `yii2-extensions/debug` no longer ships a Vite collector or panel, so the `vite` ID is free: the module wraps the
 portable objects in its generic adapters and groups them under Extensions. Retain the existing module bootstrap,
@@ -71,8 +71,8 @@ observations if called twice; `shutdown()` disables it and clears references. Ev
 An active but unused collector captures `['components' => []]`; disabled collection captures `null`.
 
 Attach the event only to trusted listeners: it carries real application data, so never point an unrestricted event
-dumper at it. Listener exceptions propagate per PSR-14 — never swallowed, never retried. The supplied listener only
-buffers the event.
+dumper at it. Listener exceptions propagate per PSR-14; they are never swallowed and never retried. The supplied
+listener only buffers the event.
 
 ## Compatibility
 

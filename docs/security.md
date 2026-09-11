@@ -59,7 +59,7 @@ The renderer places the nonce on every generated script and link tag. The comple
 lifecycle and every other directive stay with the application.
 
 Dev servers usually need extra `connect-src` origins for HTTP and WebSocket HMR. Add those to the application's
-development policy only — this package never weakens CSP on its own.
+development policy only; this package never weakens CSP on its own.
 
 ---
 

@@ -59,7 +59,7 @@ The example methods belong to the consuming application; they are not package AP
 ## Yii2 integration
 
 Register the facade as a component so Yii2 owns its lazy construction. `__construct()` is Yii2 container syntax and its
-values reach the framework-independent constructor unchanged — the same `$configuration` built above. The package never
+values reach the framework-independent constructor unchanged; it is the same `$configuration` built above. The package never
 touches `Yii::getAlias()`, the service locator, or `yii\web\View`:
 
 ```php

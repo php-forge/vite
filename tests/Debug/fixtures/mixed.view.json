@@ -128,7 +128,7 @@
                         "content": [
                             {
                                 "kind": "text",
-                                "value": "The Vite manifest is missing or empty — run the front-end build to populate it.",
+                                "value": "The Vite manifest is missing or empty; run the front-end build to populate it.",
                                 "style": "plain"
                             }
                         ],
