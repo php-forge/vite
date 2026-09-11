@@ -92,11 +92,21 @@ echo HtmlRenderer::create()->render($vite->resolve());
 
 ## Debugger integration
 
-`Vite::resolve()` emits `AssetsResolved` through an optional PSR-14 dispatcher. The package never imports debug
-contracts or calls a collector, so installing it does not activate a debugger and a call without a dispatcher emits no
-events. The collector and panel live in `PHPForge\Vite\Debug`, owned by this package.
+`Vite::resolve()` emits `AssetsResolved` through an optional PSR-14 dispatcher. The asset resolution path never
+imports a debug contract or calls a collector, so installing the package does not activate a debugger and a call
+without a dispatcher emits no events. The collector and panel that do implement those contracts live apart, in
+`PHPForge\Vite\Debug`, owned by this package.
 
 See [Debugger integration](docs/debugging.md) for the Yii2 and Yii3 wiring. It remains an unreleased prototype.
+
+<details>
+<summary>Yii3</summary>
+<picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/yii3-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="docs/images/yii3-light.png">
+    <img src="docs/images/yii3-light.png" alt="Vite panel in Yii3">
+</picture>
+</details>
 
 ## Package information
 

@@ -100,6 +100,14 @@ final class VitePanelProvider
             ['components' => self::components('unknown', ['chunks' => false])],
             Message::DIAGNOSTICS_CHUNK_LIST_INVALID->getMessage(),
         ];
+        yield 'chunks are keyed instead of a list' => [
+            ['components' => self::components('unknown', ['chunks' => ['first' => self::chunk()]])],
+            Message::DIAGNOSTICS_CHUNK_LIST_INVALID->getMessage(),
+        ];
+        yield 'entrypoints are keyed instead of a list' => [
+            ['components' => self::components('unknown', ['entrypoints' => ['first' => 'app.js']])],
+            Message::DIAGNOSTICS_ENTRYPOINT_LIST_INVALID->getMessage(),
+        ];
         yield 'chunk is not an array' => [
             ['components' => self::components('unknown', ['chunks' => [false]])],
             $chunkInvalid,

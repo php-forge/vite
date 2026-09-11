@@ -110,7 +110,7 @@ final class VitePanel extends Panel
     {
         $chunks = $data['chunks'] ?? null;
 
-        if (!is_array($chunks)) {
+        if (!is_array($chunks) || !array_is_list($chunks)) {
             throw new InvalidArgumentException(Message::DIAGNOSTICS_CHUNK_LIST_INVALID->getMessage());
         }
 
@@ -184,7 +184,7 @@ final class VitePanel extends Panel
 
         $entrypoints = $data['entrypoints'] ?? null;
 
-        if (!is_array($entrypoints)) {
+        if (!is_array($entrypoints) || !array_is_list($entrypoints)) {
             throw new InvalidArgumentException(
                 Message::DIAGNOSTICS_ENTRYPOINT_LIST_INVALID->getMessage(),
             );
