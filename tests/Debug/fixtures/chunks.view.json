@@ -206,7 +206,8 @@
                             "4": "number",
                             "5": "pill"
                         },
-                        "collapsible": false
+                        "collapsible": false,
+                        "filterable": false
                     }
                 ],
                 "toolbar": [],

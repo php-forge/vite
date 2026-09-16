@@ -6,6 +6,20 @@ namespace PHPForge\Vite\Tests\Debug;
 
 use InvalidArgumentException;
 use PHPForge\Debug\PanelView;
+use PHPForge\Debug\Presenter\{
+    BadgeInline,
+    Block,
+    EmptyStateBlock,
+    GroupBlock,
+    HeadingBlock,
+    Inline,
+    OverviewBlock,
+    ParagraphBlock,
+    SummaryMetric,
+    TableBlock,
+    TextInline,
+    ToolbarMetric
+};
 use PHPForge\Vite\Debug\VitePanel;
 use PHPForge\Vite\Tests\Provider\VitePanelProvider;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
@@ -21,13 +35,6 @@ use function str_replace;
  * Unit tests for {@see VitePanel} component overviews, build chunks, empty states, and diagnostics validation.
  *
  * {@see VitePanelProvider} for test case data providers.
- *
- * @phpstan-import-type Block from PanelView
- * @phpstan-import-type GroupBlock from PanelView
- * @phpstan-import-type Inline from PanelView
- * @phpstan-import-type OverviewBlock from PanelView
- * @phpstan-import-type Pair from PanelView
- * @phpstan-import-type TableBlock from PanelView
  */
 final class VitePanelTest extends TestCase
 {
@@ -49,8 +56,8 @@ final class VitePanelTest extends TestCase
 
         $view = $panel->present(['components' => $components]);
 
-        $content = self::group(self::blockAt($view, 0))['content'];
-        $rows = self::table(self::blockAt($content, 2))['rows'];
+        $content = self::group(self::blockAt($view, 0))->content;
+        $rows = self::table(self::blockAt($content, 2))->rows;
 
         $cell = $rows[0][2] ?? self::fail('Chunks must use the shared table contract.');
 
@@ -64,7 +71,7 @@ final class VitePanelTest extends TestCase
 
         self::assertSame(
             '2 components · Mixed',
-            self::metricValue($panel->present(['components' => $components])->toolbarMetrics(), 0),
+            self::toolbarValue($panel->present(['components' => $components])->toolbarMetrics(), 0),
             'Different modes must be explicit.',
         );
     }
@@ -98,7 +105,7 @@ final class VitePanelTest extends TestCase
             self::assertStringEqualsFile(
                 str_replace('.input.json', '.view.json', $path),
                 json_encode(
-                    $view,
+                    self::describe($view),
                     JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
                 ) . "\n",
                 'The complete semantic description must preserve content, order, and styles.',
@@ -139,7 +146,7 @@ final class VitePanelTest extends TestCase
         );
         self::assertSame(
             '0',
-            self::metricValue($view->summaryMetrics(), 0),
+            self::summaryValue($view->summaryMetrics(), 0),
             'The summary must retain the empty count.',
         );
     }
@@ -155,12 +162,12 @@ final class VitePanelTest extends TestCase
         );
         self::assertSame(
             $label,
-            self::metricValue($view->toolbarMetrics(), 0),
+            self::toolbarValue($view->toolbarMetrics(), 0),
             'The toolbar must describe the captured mode.',
         );
         self::assertSame(
             'Vite component frontend',
-            self::group(self::blockAt($view, 0))['label'],
+            self::group(self::blockAt($view, 0))->label,
             'The group must identify the component.',
         );
     }
@@ -188,7 +195,7 @@ final class VitePanelTest extends TestCase
 
         $view = (new VitePanel())->present(['components' => $components]);
 
-        $content = self::group(self::blockAt($view, 0))['content'];
+        $content = self::group(self::blockAt($view, 0))->content;
 
         self::assertCount(
             4,
@@ -196,82 +203,283 @@ final class VitePanelTest extends TestCase
             'Unavailable inspection must add a warning block.',
         );
 
-        $fields = self::overview(self::blockAt($content, 0))['fields'];
+        $fields = self::overview(self::blockAt($content, 0))->fields;
 
         $field = $fields[9] ?? self::fail('Configuration must remain inspectable.');
 
         self::assertSame(
             'Unknown',
-            self::textValue($field['value']),
+            self::textValue($field->value),
             'Unavailable flags must not become disabled.',
         );
     }
 
     /**
-     * @return Block
+     * @param PanelView $view View to read.
+     * @param int $index Position of the block in display order.
+     *
+     * @return Block Block declared at the requested position.
      */
-    private static function blockAt(PanelView $view, int $index): array
+    private static function blockAt(PanelView $view, int $index): Block
     {
         return $view->blocks()[$index] ?? self::fail('The declared presentation structure must be complete.');
     }
 
     /**
-     * @param Block $block
+     * Describes the view as the plain structure stored in the reviewed fixtures.
      *
-     * @return GroupBlock
+     * @param PanelView $view View to describe.
+     *
+     * @return array<string, mixed> Complete description in display order.
      */
-    private static function group(array $block): array
+    private static function describe(PanelView $view): array
     {
-        return match ($block['kind']) {
-            'group' => $block,
+        $summary = [];
+
+        foreach ($view->summaryMetrics() as $metric) {
+            $summary[] = ['label' => $metric->label, 'value' => self::describeInline($metric->value)];
+        }
+
+        $blocks = [];
+
+        foreach ($view->blocks() as $block) {
+            $blocks[] = self::describeBlock($block);
+        }
+
+        $toolbar = [];
+
+        foreach ($view->toolbarMetrics() as $metric) {
+            $toolbar[] = [
+                'label' => $metric->label,
+                'value' => ['kind' => 'text', 'value' => $metric->value, 'style' => 'plain'],
+            ];
+        }
+
+        return ['summary' => $summary, 'blocks' => $blocks, 'toolbar' => $toolbar, 'active' => $view->isActive()];
+    }
+
+    /**
+     * @param Block $block Block to describe.
+     *
+     * @return array<string, mixed> Block description keyed by its declared fields.
+     */
+    private static function describeBlock(Block $block): array
+    {
+        return match (true) {
+            $block instanceof EmptyStateBlock => [
+                'kind' => 'emptyState',
+                'title' => $block->title,
+                'paragraphs' => self::describeBlocks($block->paragraphs),
+            ],
+            $block instanceof GroupBlock => [
+                'kind' => 'group',
+                'label' => $block->label,
+                'content' => self::describe($block->content),
+            ],
+            $block instanceof HeadingBlock => [
+                'kind' => 'heading',
+                'title' => $block->title,
+                'section' => $block->section,
+            ],
+            $block instanceof OverviewBlock => [
+                'kind' => 'overview',
+                'fields' => self::describeFields($block),
+                'compact' => $block->compact,
+            ],
+            $block instanceof ParagraphBlock => [
+                'kind' => 'paragraph',
+                'content' => self::describeInlines($block->content),
+                'tone' => $block->tone?->value,
+            ],
+            $block instanceof TableBlock => [
+                'kind' => 'table',
+                'headers' => $block->headers,
+                'rows' => self::describeRows($block),
+                'styles' => self::describeStyles($block),
+                'collapsible' => $block->collapsible,
+                'filterable' => $block->filterable,
+            ],
+            default => self::fail('The description must use a block the panel declares.'),
+        };
+    }
+
+    /**
+     * @param list<ParagraphBlock> $blocks Blocks to describe.
+     *
+     * @return list<array<string, mixed>> Block descriptions in display order.
+     */
+    private static function describeBlocks(array $blocks): array
+    {
+        $described = [];
+
+        foreach ($blocks as $block) {
+            $described[] = self::describeBlock($block);
+        }
+
+        return $described;
+    }
+
+    /**
+     * @param OverviewBlock $block Overview whose fields are described.
+     *
+     * @return list<array<string, mixed>> Field descriptions in display order.
+     */
+    private static function describeFields(OverviewBlock $block): array
+    {
+        $described = [];
+
+        foreach ($block->fields as $field) {
+            $described[] = ['label' => $field->label, 'value' => self::describeInline($field->value)];
+        }
+
+        return $described;
+    }
+
+    /**
+     * @param Inline $inline Inline value to describe.
+     *
+     * @return array<string, mixed> Inline description keyed by its declared fields.
+     */
+    private static function describeInline(Inline $inline): array
+    {
+        return match (true) {
+            $inline instanceof BadgeInline => [
+                'kind' => 'badge',
+                'label' => $inline->label,
+                'tone' => $inline->tone->value,
+            ],
+            $inline instanceof TextInline => [
+                'kind' => 'text',
+                'value' => $inline->value,
+                'style' => $inline->style->value,
+            ],
+            default => self::fail('The description must use an inline value the panel declares.'),
+        };
+    }
+
+    /**
+     * @param list<Inline> $inlines Inline values to describe.
+     *
+     * @return list<array<string, mixed>> Inline descriptions in display order.
+     */
+    private static function describeInlines(array $inlines): array
+    {
+        $described = [];
+
+        foreach ($inlines as $inline) {
+            $described[] = self::describeInline($inline);
+        }
+
+        return $described;
+    }
+
+    /**
+     * @param TableBlock $block Table whose rows are described.
+     *
+     * @return list<list<array<string, mixed>>> Row descriptions in display order.
+     */
+    private static function describeRows(TableBlock $block): array
+    {
+        $described = [];
+
+        foreach ($block->rows as $row) {
+            $described[] = self::describeInlines($row);
+        }
+
+        return $described;
+    }
+
+    /**
+     * @param TableBlock $block Table whose column styles are described.
+     *
+     * @return array<int, string> Style names keyed by column index.
+     */
+    private static function describeStyles(TableBlock $block): array
+    {
+        $described = [];
+
+        foreach ($block->styles as $column => $style) {
+            $described[$column] = $style->value;
+        }
+
+        return $described;
+    }
+
+    /**
+     * @param Block $block Block to narrow.
+     *
+     * @return GroupBlock Narrowed group.
+     */
+    private static function group(Block $block): GroupBlock
+    {
+        return match (true) {
+            $block instanceof GroupBlock => $block,
             default => self::fail('Each integration must have an accessible group.'),
         };
     }
 
     /**
-     * @param list<Pair> $metrics
-     */
-    private static function metricValue(array $metrics, int $index): string
-    {
-        $metric = $metrics[$index] ?? self::fail('The declared presentation structure must be complete.');
-
-        return self::textValue($metric['value']);
-    }
-
-    /**
-     * @param Block $block
+     * @param Block $block Block to narrow.
      *
-     * @return OverviewBlock
+     * @return OverviewBlock Narrowed overview.
      */
-    private static function overview(array $block): array
+    private static function overview(Block $block): OverviewBlock
     {
-        return match ($block['kind']) {
-            'overview' => $block,
+        return match (true) {
+            $block instanceof OverviewBlock => $block,
             default => self::fail('Configuration must remain inspectable.'),
         };
     }
 
     /**
-     * @param Block $block
+     * @param list<SummaryMetric> $metrics Summary metrics in display order.
+     * @param int $index Position of the metric in display order.
      *
-     * @return TableBlock
+     * @return string Plain-text metric value.
      */
-    private static function table(array $block): array
+    private static function summaryValue(array $metrics, int $index): string
     {
-        return match ($block['kind']) {
-            'table' => $block,
+        $metric = $metrics[$index] ?? self::fail('The declared presentation structure must be complete.');
+
+        return self::textValue($metric->value);
+    }
+
+    /**
+     * @param Block $block Block to narrow.
+     *
+     * @return TableBlock Narrowed table.
+     */
+    private static function table(Block $block): TableBlock
+    {
+        return match (true) {
+            $block instanceof TableBlock => $block,
             default => self::fail('Chunks must use the shared table contract.'),
         };
     }
 
     /**
-     * @param Inline $inline
+     * @param Inline $inline Inline value to read.
+     *
+     * @return string Plain-text content.
      */
-    private static function textValue(array $inline): string
+    private static function textValue(Inline $inline): string
     {
-        return match ($inline['kind']) {
-            'text' => $inline['value'],
+        return match (true) {
+            $inline instanceof TextInline => $inline->value,
             default => self::fail('The value must be plain text.'),
         };
+    }
+
+    /**
+     * @param list<ToolbarMetric> $metrics Toolbar metrics in display order.
+     * @param int $index Position of the metric in display order.
+     *
+     * @return string Plain-text metric value.
+     */
+    private static function toolbarValue(array $metrics, int $index): string
+    {
+        $metric = $metrics[$index] ?? self::fail('The declared presentation structure must be complete.');
+
+        return $metric->value;
     }
 }
