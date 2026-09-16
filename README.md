@@ -37,7 +37,7 @@
 ## Installation
 
 ```bash
-composer require php-forge/vite:^0.3
+composer require php-forge/vite:^0.4
 ```
 
 The consuming application owns Vite and every JavaScript dependency. Production resolution needs Vite's build
@@ -109,13 +109,13 @@ See [Debugger integration](docs/debugging.md) for the Yii2 and Yii3 wiring. It r
 
 ## Documentation
 
-- [Installation guide](docs/installation.md)
-- [Configuration reference](docs/configuration.md)
-- [Manifest resolution](docs/manifest.md)
-- [Usage examples](docs/examples.md)
-- [Security and CSP](docs/security.md)
-- [Debugger integration](docs/debugging.md)
-- [Testing guide](docs/testing.md)
+- 📚 [Installation guide](docs/installation.md)
+- ⚙️ [Configuration reference](docs/configuration.md)
+- 🗂️ [Manifest resolution](docs/manifest.md)
+- 💡 [Usage examples](docs/examples.md)
+- 🛡️ [Security and CSP](docs/security.md)
+- 🐞 [Debugger integration](docs/debugging.md)
+- 🧪 [Testing guide](docs/testing.md)
 
 ## Package information
 
