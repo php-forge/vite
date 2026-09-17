@@ -81,7 +81,7 @@ final class VitePanel extends Panel
             }
         }
 
-        $view = $view->summary($count === 1 ? ' component' : ' components', $count)->active($count !== 0);
+        $view = $view->summary($count === 1 ? ' component' : ' components', $count);
 
         if ($count === 0) {
             return $view->emptyState(

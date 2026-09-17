@@ -135,10 +135,6 @@ final class VitePanelTest extends TestCase
 
         $view = $panel->present(['components' => []]);
 
-        self::assertFalse(
-            $view->isActive(),
-            'An empty capture must not activate navigation.',
-        );
         self::assertSame(
             [],
             $view->toolbarMetrics(),
@@ -156,10 +152,6 @@ final class VitePanelTest extends TestCase
     {
         $view = (new VitePanel())->present(['components' => VitePanelProvider::components($mode)]);
 
-        self::assertTrue(
-            $view->isActive(),
-            'Captured components must activate the panel.',
-        );
         self::assertSame(
             $label,
             self::toolbarValue($view->toolbarMetrics(), 0),
@@ -255,7 +247,7 @@ final class VitePanelTest extends TestCase
             ];
         }
 
-        return ['summary' => $summary, 'blocks' => $blocks, 'toolbar' => $toolbar, 'active' => $view->isActive()];
+        return ['summary' => $summary, 'blocks' => $blocks, 'toolbar' => $toolbar];
     }
 
     /**

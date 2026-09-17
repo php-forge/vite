@@ -135,8 +135,7 @@
                         "tone": null
                     }
                 ],
-                "toolbar": [],
-                "active": true
+                "toolbar": []
             }
         }
     ],
@@ -149,6 +148,5 @@
                 "style": "plain"
             }
         }
-    ],
-    "active": true
+    ]
 }
