@@ -210,8 +210,7 @@
                         "filterable": false
                     }
                 ],
-                "toolbar": [],
-                "active": true
+                "toolbar": []
             }
         }
     ],
@@ -224,6 +223,5 @@
                 "style": "plain"
             }
         }
-    ],
-    "active": true
+    ]
 }

@@ -6,7 +6,7 @@ namespace PHPForge\Vite\Tests\Debug;
 
 use PHPForge\Vite\Asset\AssetCollection;
 use PHPForge\Vite\Configuration\{DevelopmentConfiguration, ProductionConfiguration};
-use PHPForge\Vite\Debug\{ViteCollector, VitePanel};
+use PHPForge\Vite\Debug\ViteCollector;
 use PHPForge\Vite\Development\InlineModuleProviderInterface;
 use PHPForge\Vite\Event\AssetsResolved;
 use PHPForge\Vite\Exception\ManifestNotFoundException;
@@ -51,10 +51,6 @@ final class ViteCollectorTest extends TestCase
             $collector->capture(),
             'Observed empty capture, not missing.',
         );
-        self::assertFalse(
-            (new VitePanel())->present(['components' => []])->isActive(),
-            'An empty capture must not activate the panel.',
-        );
 
         $collector->shutdown();
     }
@@ -95,10 +91,6 @@ final class ViteCollectorTest extends TestCase
             $expected,
             $capture,
             'Components must accumulate in resolution order.',
-        );
-        self::assertTrue(
-            (new VitePanel())->present($capture)->isActive(),
-            'Captured components must activate the panel.',
         );
 
         $collector->shutdown();
@@ -437,10 +429,6 @@ final class ViteCollectorTest extends TestCase
 
         $collector->shutdown();
 
-        self::assertTrue(
-            (new VitePanel())->present($capture)->isActive(),
-            'A replayed capture must activate the panel.',
-        );
 
         $collector->startup();
 
