@@ -14,7 +14,7 @@ library, which includes `ui-awesome/html-helper` transitively.
 ## Install the PHP package
 
 ```bash
-composer require php-forge/vite:^0.4
+composer require php-forge/vite:^0.5
 ```
 
 ## Configure the consuming project

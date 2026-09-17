@@ -37,7 +37,7 @@
 ## Installation
 
 ```bash
-composer require php-forge/vite:^0.4
+composer require php-forge/vite:^0.5
 ```
 
 The consuming application owns Vite and every JavaScript dependency. Production resolution needs Vite's build
