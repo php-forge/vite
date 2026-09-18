@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.5.1 Under development
 
+- fix: correct dependency version for `php-forge/debug` to `^0.3`.
+
 ## 0.5.0 September 17, 2026
 
 - build!: require `php-forge/debug` `^0.3`.
