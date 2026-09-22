@@ -14,51 +14,56 @@ do not invent completion events.
 ## Development wiring
 
 The package ships one collector and one panel, `PHPForge\Vite\Debug\ViteCollector` and
-`PHPForge\Vite\Debug\VitePanel`; the host never reimplements collection or presentation. What differs between
-frameworks is only how the dispatcher reaches the `PHPForge\Vite\Vite` service.
+`PHPForge\Vite\Debug\VitePanel`; the host never reimplements collection or presentation. In any framework: pass
+`ViteCollector` as the `eventDispatcher` of `Vite::create()` or register it as a listener of `AssetsResolved` on your
+dispatcher, and register the collector and `VitePanel` with your debugger under the ID `vite`. The debuggers name no
+provider package, so nothing is wired until the application declares it.
 
-### Yii3, one flag and no application code
+### Yii3, three entries in the application configuration
 
-`yii3/debug` registers the collector and panel behind a flag and attaches the collector as a listener; the container
-autowires `Psr\EventDispatcher\EventDispatcherInterface` into `Vite`, so the application adds nothing else.
+`yii3/debug` reads collectors and panels from its params and resolves the collector from the container, the same
+instance the event dispatcher calls. The container autowires `Psr\EventDispatcher\EventDispatcherInterface` into
+`Vite`, and `ViteCollector` has no constructor, so it needs no definition:
 
 ```php
-return [
-    'yii3/debug' => [
-        'extensions' => [
-            'vite' => true,
-        ],
-    ],
-];
+use PHPForge\Vite\Debug\{ViteCollector, VitePanel};
+use PHPForge\Vite\Event\AssetsResolved;
+
+// config/params.php
+'yii3/debug' => [
+    'collectors' => ['vite' => ViteCollector::class],
+    'panels' => ['vite' => VitePanel::class],
+],
+
+// config/events-web.php
+AssetsResolved::class => [ViteCollector::class],
 ```
 
-Enabling the flag without `php-forge/vite` installed fails with an explicit container error.
+Without `yii3/debug` installed the params entry is inert and the listener only buffers.
 
-### Yii2, one registration
+### Yii2, one module registration
 
-Yii2 has no framework-native PSR-14 dispatcher, and its DI container does not autowire optional constructor arguments.
-`Vite` emits exactly one event type, so `ViteCollector` is its own single-listener dispatcher and the application
-writes no PSR-14 code.
-
+Yii2 has no framework-native PSR-14 dispatcher. `Vite` emits exactly one event type, so `ViteCollector` is its own
+single-listener dispatcher, and the module's `dispatchers` option hands it to the component that resolves the assets.
 Inside the existing `YII_DEBUG` configuration guard:
 
 ```php
 use PHPForge\Vite\Debug\{ViteCollector, VitePanel};
 
-$viteCollector = new ViteCollector();
-
-// Keep the component ID already used by the application.
-$config['components']['vite']['__construct()']['eventDispatcher'] = $viteCollector;
-$config['modules']['debug']['collectors']['vite'] = $viteCollector;
-$config['modules']['debug']['panels']['vite'] = new VitePanel();
+$config['modules']['debug']['collectors']['vite'] = ViteCollector::class;
+$config['modules']['debug']['panels']['vite'] = VitePanel::class;
+// Collector ID => the component ID the application already uses for `PHPForge\Vite\Vite`.
+$config['modules']['debug']['dispatchers']['vite'] = 'vite';
 ```
 
-If the application already owns a real PSR-14 dispatcher, register the collector as a listener on it and inject that
-dispatcher instead; never replace a populated dispatcher with an empty one.
+The module writes the collector into the `eventDispatcher` constructor argument of the component definition before the
+request runs, without instantiating it; a component instantiated earlier is rejected with an explicit error. A
+dispatcher the definition already configures is kept: if the application owns a real PSR-14 dispatcher, register the
+collector as a listener on it and leave `vite` out of `dispatchers`; never replace a populated dispatcher with an
+empty one.
 
-`yii2-extensions/debug` no longer ships a Vite collector or panel, so the `vite` ID is free: the module wraps the
-portable objects in its generic adapters and groups them under Extensions. Retain the existing module bootstrap,
-routing, access rules, and asset configuration.
+The debugger groups the panel under Extensions. Disable it with `'enabled' => false` on both entries; removing
+`php-forge/vite` while the configuration still names its classes fails with an error naming the class.
 
 Inject the dispatcher into the **actual** Vite service, not into a duplicate diagnostic-only one. Omitting it is safe:
 resolution behaves normally and the panel simply stays empty.

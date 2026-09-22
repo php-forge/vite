@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.5.2 Under development
 
+- docs: describe the explicit Yii2 `dispatchers` and Yii3 `params`/`events-web` debugger registration in `docs/debugging.md`.
+
 ## 0.5.1 September 18, 2026
 
 - fix: correct dependency version for `php-forge/debug` to `^0.3`.
