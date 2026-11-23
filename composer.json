@@ -30,7 +30,7 @@
     "prefer-stable": true,
     "require": {
         "php": ">=8.3",
-        "ui-awesome/html": "^0.6",
+        "ui-awesome/html": "^0.7",
         "php-forge/debug": "^0.4",
         "psr/event-dispatcher": "^1.0"
     },
